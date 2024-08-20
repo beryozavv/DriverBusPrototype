@@ -18,22 +18,32 @@ public class CommandExecutor : ICommandExecutor
 
         if (isConnected)
         {
-            var commandPtr = StructureToPtrHelper.GetCommandPtr(command);
-            _communicationPort.Write(commandPtr, 0);
+            try
+            {
+                var commandPtr = StructureToPtrHelper.GetCommandPtr(command);
+                _communicationPort.Write(commandPtr, 0);
 
-            var resultPtr = OperationTimeoutHelper.OperationWithTimeout(
-                () =>
+                var resultPtr = OperationTimeoutHelper.OperationWithTimeout(
+                    () =>
+                    {
+                        _communicationPort.Read(out var resultPtr, out _);
+                        return resultPtr;
+                    }
+                    , Settings.CommandTimeout);
+
+                var result = Marshal.PtrToStructure<CommandResult>(resultPtr);
+
+                if (command.Id != result.Id)
                 {
-                    _communicationPort.Read(out var resultPtr, out _);
-                    return resultPtr;
+                    throw new Exception("Command.Id and Result.Id mismatch");
                 }
-                , Settings.CommandTimeout);
 
-            var result = Marshal.PtrToStructure<CommandResult>(resultPtr);
-
-            _communicationPort.Disconnect();
-
-            return result;
+                return result;
+            }
+            finally
+            {
+                _communicationPort.Disconnect();
+            }
         }
         else
         {
