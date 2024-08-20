@@ -12,4 +12,8 @@
       </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="CrossTech.DSS.Packages.Core.Models" Version="3.6.6" />
+    </ItemGroup>
+
 </Project>

@@ -1,4 +1,4 @@
-﻿namespace DriverBusPrototype.AgentService.Auth
+﻿namespace DriverBusPrototype.Agent.Auth
 {
     /// <summary>
     /// Http-обработчик с политикой повторов при неудачной авторизации

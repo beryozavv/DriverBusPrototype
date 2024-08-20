@@ -1,4 +1,4 @@
-﻿using DriverBusPrototype.AgentService.Auth;
+﻿using DriverBusPrototype.Agent.Auth;
 using Xunit;
 using Xunit.Abstractions;
 

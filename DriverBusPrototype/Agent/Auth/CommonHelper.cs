@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace DriverBusPrototype.AgentService.Auth;
+namespace DriverBusPrototype.Agent.Auth;
 
 public class CommonHelper
 {

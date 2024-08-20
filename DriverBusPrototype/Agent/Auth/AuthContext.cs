@@ -1,4 +1,4 @@
-﻿namespace DriverBusPrototype.AgentService.Auth;
+﻿namespace DriverBusPrototype.Agent.Auth;
 
 public class AuthContext
 {
