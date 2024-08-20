@@ -5,16 +5,16 @@
     /// </summary>
     public class AuthHttpHandler : HttpClientHandler
     {
-        private const string APIKEY_HEADER = "X-API-KEY";
+        private const string ApikeyHeader = "X-API-KEY";
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
         {
-            if (request.Headers.Contains(APIKEY_HEADER))
+            if (request.Headers.Contains(ApikeyHeader))
             {
-                request.Headers.Remove(APIKEY_HEADER);
+                request.Headers.Remove(ApikeyHeader);
             }
 
-            request.Headers.Add(APIKEY_HEADER, new AuthContext().GetApiKey());
+            request.Headers.Add(ApikeyHeader, new AuthContext().GetApiKey());
 
             var response = await base.SendAsync(request, ct);
 

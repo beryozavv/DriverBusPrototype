@@ -6,4 +6,10 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Compile Update="DriverCommands\CommandExecutor.cs">
+        <DependentUpon>ICommandExecutor.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

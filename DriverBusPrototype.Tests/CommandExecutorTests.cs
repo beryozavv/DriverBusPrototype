@@ -18,9 +18,41 @@ public class CommandExecutorTests
     [Fact]
     public void SendParamsCommandTest()
     {
-        ISocket socket = new SocketMock(_testOutputHelper);
-        ICommandExecutor commandExecutor = new CommandExecutor(socket);
+        ICommunicationPort communicationPort = new CommunicationPortMock(_testOutputHelper, TimeSpan.FromSeconds(2));
+        ICommandExecutor commandExecutor = new CommandExecutor(communicationPort);
 
+        var command = PrepareCommand();
+
+        var commandResult = commandExecutor.SendCommand(command);
+
+        if (!commandResult.IsSuccess)
+        {
+            _testOutputHelper.WriteLine($"ERROR in response: {commandResult.ErrorCode} {commandResult.ErrorMessage}");
+        }
+        else
+        {
+            _testOutputHelper.WriteLine("Command was executed successfully");
+        }
+
+        Assert.Equal(command.Id, commandResult.Id);
+    }
+
+    [Fact]
+    public void SendParamsCommandTimeoutExTest()
+    {
+        ICommunicationPort communicationPort = new CommunicationPortMock(_testOutputHelper, TimeSpan.FromSeconds(7));
+        ICommandExecutor commandExecutor = new CommandExecutor(communicationPort);
+
+        var command = PrepareCommand();
+
+        Assert.Throws<CommandTimeoutException>(() =>
+            commandExecutor.SendCommand(command));
+
+        _testOutputHelper.WriteLine("A CommandTimeoutException was thrown");
+    }
+
+    private static Command PrepareCommand()
+    {
         var paramsJson = new ParamsJson
         {
             IsDriverEnabled = true,
@@ -39,16 +71,6 @@ public class CommandExecutorTests
             Type = (int) CommandType.SetParams,
             Parameters = json
         };
-
-        var commandResult = commandExecutor.SendCommand(command);
-
-        if (!commandResult.IsSuccess)
-        {
-            _testOutputHelper.WriteLine($"ERROR: {commandResult.ErrorCode} {commandResult.ErrorMessage}");
-        }
-        else
-        {
-            _testOutputHelper.WriteLine("Command was executed successfully");
-        }
+        return command;
     }
 }

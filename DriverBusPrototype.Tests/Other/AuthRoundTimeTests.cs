@@ -4,11 +4,11 @@ using Xunit.Abstractions;
 
 namespace DriverBusPrototype.Tests.Other;
 
-public class RoundTimeTests
+public class AuthRoundTimeTests
 {
     private readonly ITestOutputHelper _outputHelper;
 
-    public RoundTimeTests(ITestOutputHelper outputHelper)
+    public AuthRoundTimeTests(ITestOutputHelper outputHelper)
     {
         _outputHelper = outputHelper;
     }

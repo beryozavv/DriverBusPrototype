@@ -5,32 +5,33 @@ namespace DriverBusPrototype.DriverCommands;
 
 public class CommandExecutor : ICommandExecutor
 {
-    private readonly ISocket _socket;
+    private readonly ICommunicationPort _communicationPort;
 
-    public CommandExecutor(ISocket socket)
+    public CommandExecutor(ICommunicationPort communicationPort)
     {
-        _socket = socket;
+        _communicationPort = communicationPort;
     }
 
     public CommandResult SendCommand(Command command)
     {
-        var isConnected = _socket.Connect("testPort");
+        var isConnected = _communicationPort.Connect("testPort");
 
         if (isConnected)
         {
-            var (intPtr, size) = GetCommandPtr(command);
-            _socket.Write(intPtr, size);
+            var commandPtr = StructureToPtrHelper.GetCommandPtr(command);
+            _communicationPort.Write(commandPtr, 0);
 
-            // todo timeout
-
-            var commandResult = GetTestResult(); // временно для выделения неуправляемой памяти
-            var (resultPtr, resultSize) = GetCommandPtr(commandResult);
-
-            _socket.Read(resultPtr, resultSize); // todo почему клиент задает?
+            var resultPtr = OperationTimeoutHelper.OperationWithTimeout(
+                () =>
+                {
+                    _communicationPort.Read(out var resultPtr, out _);
+                    return resultPtr;
+                }
+                , Settings.CommandTimeout);
 
             var result = Marshal.PtrToStructure<CommandResult>(resultPtr);
 
-            _socket.Disconnect();
+            _communicationPort.Disconnect();
 
             return result;
         }
@@ -40,14 +41,6 @@ public class CommandExecutor : ICommandExecutor
         }
     }
 
-    private (IntPtr, int) GetCommandPtr<T>(T command) where T : struct
-    {
-        var size = Marshal.SizeOf(command);
-        var ptr = Marshal.AllocHGlobal(size);
-        Marshal.StructureToPtr(command, ptr, false);
-
-        return (ptr, size);
-    }
 
     private CommandResult GetTestResult()
     {

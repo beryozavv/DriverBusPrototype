@@ -6,15 +6,17 @@ using Xunit.Abstractions;
 
 namespace DriverBusPrototype.Tests;
 
-public class SocketMock : ISocket
+public class CommunicationPortMock : ICommunicationPort
 {
     private readonly ITestOutputHelper _testOutputHelper;
-    private string _portName;
+    private readonly TimeSpan _readTimeout;
+    private string? _portName;
     private string _commandId = "default";
 
-    public SocketMock(ITestOutputHelper testOutputHelper)
+    public CommunicationPortMock(ITestOutputHelper testOutputHelper, TimeSpan readTimeout)
     {
         _testOutputHelper = testOutputHelper;
+        _readTimeout = readTimeout;
     }
 
     public bool Connect(string portName)
@@ -24,10 +26,14 @@ public class SocketMock : ISocket
         return true;
     }
 
-    public void Read(IntPtr dataPtr, int dataSize)
+    public void Read(out IntPtr dataPtr, out int dataSize)
     {
         var commandResult = GetTestResult();
 
+        Thread.Sleep(_readTimeout);
+
+        dataPtr = StructureToPtrHelper.GetCommandPtr(commandResult);
+        dataSize = 0;
         Marshal.StructureToPtr(commandResult, dataPtr, false);
 
         _testOutputHelper.WriteLine("Send result by commandId = " + commandResult.Id);
@@ -49,9 +55,11 @@ public class SocketMock : ISocket
 
             _testOutputHelper.WriteLine("command id = " + command.Id + "file formats " + string.Join(',', paramsJson!.FileFormats));
         }
-        else
+        else if(command.Type == (int) CommandType.SetPermissions)
         {
-            //todo
+            var permissionsJson = JsonSerializer.Deserialize<PermissionsJson>(command.Parameters);
+
+            _testOutputHelper.WriteLine("command id = " + command.Id + "userId = " + permissionsJson!.UserId);
         }
     }
 
@@ -67,7 +75,8 @@ public class SocketMock : ISocket
             Id = _commandId,
             IsSuccess = false,
             ErrorCode = 123123,
-            ErrorMessage = "Error526526 Error123123 Error123123 Error123123 Error123123 Error123123 Error123123 Error123123 Error123123 qrwetqwetqwertqwertqrwtqwtwe"
+            ErrorMessage =
+                "Error526526 Error123123 Error123123 Error123123 Error123123 Error123123 Error123123 Error123123 Error123123 qrwetqwetqwertqwertqrwtqwtwe"
         };
     }
 }

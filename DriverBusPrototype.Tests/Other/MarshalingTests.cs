@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using Xunit;
 using Xunit.Abstractions;
+#pragma warning disable CS8601
 
 namespace DriverBusPrototype.Tests.Other;
 
@@ -36,7 +37,7 @@ public class MarshalingTests
         return ptr;
     }
 
-    public static MyStruct MarshalFromUnmanagedMemory(IntPtr ptr)
+    private static MyStruct MarshalFromUnmanagedMemory(IntPtr ptr)
     {
         // Marshal the unmanaged memory to the struct
         MyStruct myStruct = Marshal.PtrToStructure<MyStruct>(ptr);
@@ -47,7 +48,7 @@ public class MarshalingTests
         return myStruct;
     }
 
-    public static void FreeUnmanagedMemory(IntPtr ptr)
+    private static void FreeUnmanagedMemory(IntPtr ptr)
     {
         // Marshal the struct to get the pointer to the string
         MyStruct myStruct = Marshal.PtrToStructure<MyStruct>(ptr);

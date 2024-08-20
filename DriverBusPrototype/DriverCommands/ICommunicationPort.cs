@@ -1,6 +1,6 @@
 ﻿namespace DriverBusPrototype.DriverCommands;
 
-public interface ISocket // todo IDisposable?
+public interface ICommunicationPort // todo IDisposable?
 {
     /// <summary>
     /// Подключение к порту
@@ -20,7 +20,7 @@ public interface ISocket // todo IDisposable?
     /// <param name="dataPtr">Указатель на начало буфера</param>
     /// <param name="dataSize">Размер буфера</param>
     /// <returns>Сообщение</returns>
-    void Read(IntPtr dataPtr, int dataSize); // todo нужен ли dataSize?
+    void Read(out IntPtr dataPtr, out int dataSize); // todo нужен ли dataSize?
 
     /// <summary>
     /// Запись данных в текущий порт
