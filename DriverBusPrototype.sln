@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DriverBusPrototype", "DriverBusPrototype\DriverBusPrototype.csproj", "{EC57A75C-20AD-4969-BE83-842546B5005F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DriverBusPrototype.Tests", "DriverBusPrototype.Tests\DriverBusPrototype.Tests.csproj", "{5E5041A2-B85F-4F09-9158-6F219BDDF4BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC57A75C-20AD-4969-BE83-842546B5005F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC57A75C-20AD-4969-BE83-842546B5005F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC57A75C-20AD-4969-BE83-842546B5005F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC57A75C-20AD-4969-BE83-842546B5005F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E5041A2-B85F-4F09-9158-6F219BDDF4BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E5041A2-B85F-4F09-9158-6F219BDDF4BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E5041A2-B85F-4F09-9158-6F219BDDF4BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E5041A2-B85F-4F09-9158-6F219BDDF4BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
