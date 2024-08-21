@@ -6,5 +6,5 @@ public interface IAgentService
 {
     Task<string> GetEncryptionKey(Guid documentGuid);
 
-    Task<bool> SendEventsBatch(EventDto[] events);
+    Task<long> SendEventsBatch(EventDto[] events);
 }

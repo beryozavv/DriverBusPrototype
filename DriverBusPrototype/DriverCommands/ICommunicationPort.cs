@@ -17,15 +17,12 @@ public interface ICommunicationPort // todo IDisposable?
     /// <summary>
     /// Считывание данных из текущего порта
     /// </summary>
-    /// <param name="dataPtr">Указатель на начало буфера</param>
-    /// <param name="dataSize">Размер буфера</param>
-    /// <returns>Сообщение</returns>
-    void Read(out IntPtr dataPtr, out int dataSize); // todo нужен ли dataSize?
+    /// <returns>Результат выполнения команды</returns>
+    T Read<T>() where T:struct;
 
     /// <summary>
     /// Запись данных в текущий порт
     /// </summary>
-    /// <param name="dataPtr">Указатель на начало буфера</param>
-    /// <param name="dataSize">Размер буфера</param>
-    void Write(IntPtr dataPtr, int dataSize);
+    /// <param name="command">Команда на выполнение</param>
+    void Write<T>(T command) where T : struct;
 }

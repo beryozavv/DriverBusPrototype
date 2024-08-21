@@ -1,37 +1,65 @@
-using System.Runtime.InteropServices;
+using System.Collections.Concurrent;
 using DriverBusPrototype.DriverCommands.Models;
 
 namespace DriverBusPrototype.DriverCommands;
 
-public class CommandExecutor : ICommandExecutor
+internal class CommandExecutor : ICommandExecutor
 {
     private readonly ICommunicationPort _communicationPort;
+
+    private readonly ConcurrentDictionary<string, TaskCompletionSource<CommandResult>> _taskCompletionSourcesDict =
+        new();
 
     public CommandExecutor(ICommunicationPort communicationPort)
     {
         _communicationPort = communicationPort;
+
+        //todo для теста. вынести в фоновый сервис
+        var commandResultReaderTask = Task.Run(() =>
+        {
+            while (true)
+            {
+                try
+                {
+                    var commandResult = _communicationPort.Read<CommandResult>();
+
+                    if (_taskCompletionSourcesDict.TryGetValue(commandResult.Id, out var taskCompletionSource))
+                    {
+                        if (taskCompletionSource.TrySetResult(commandResult))
+                        {
+                            Console.WriteLine($"For command {commandResult.Id} was set command result to task");
+                        }
+
+                        _taskCompletionSourcesDict.TryRemove(commandResult.Id, out _);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        });
     }
 
-    public CommandResult SendCommand(Command command)
+    /// <summary>
+    /// todo комменты
+    /// </summary>
+    /// <param name="command"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public CommandResult ExecuteCommand(Command command)
     {
-        var isConnected = _communicationPort.Connect("testPort");
+        // todo повторный коннект (несколько раз) при получении ошибки в операциях чтения/записи 
+        var isConnected = _communicationPort.Connect("testPort"); // todo если порт отключен
 
         if (isConnected)
         {
             try
             {
-                var commandPtr = StructureToPtrHelper.GetCommandPtr(command);
-                _communicationPort.Write(commandPtr, 0);
+                _communicationPort.Write(command);
 
-                var resultPtr = OperationTimeoutHelper.OperationWithTimeout(
-                    () =>
-                    {
-                        _communicationPort.Read(out var resultPtr, out _);
-                        return resultPtr;
-                    }
-                    , Settings.CommandTimeout);
-
-                var result = Marshal.PtrToStructure<CommandResult>(resultPtr);
+                var result = OperationTimeoutHelper.OperationWithTimeout(
+                    () => _communicationPort.Read<CommandResult>(), Settings.CommandTimeout);
 
                 if (command.Id != result.Id)
                 {
@@ -42,7 +70,7 @@ public class CommandExecutor : ICommandExecutor
             }
             finally
             {
-                _communicationPort.Disconnect();
+                _communicationPort.Disconnect(); // todo делаем 1 раз при завершении приложения
             }
         }
         else
@@ -51,15 +79,37 @@ public class CommandExecutor : ICommandExecutor
         }
     }
 
-
-    private CommandResult GetTestResult()
+    /// <summary>
+    /// todo
+    /// </summary>
+    /// <param name="command"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<CommandResult> ExecuteCommandAsync(Command command)
     {
-        return new CommandResult
+        // todo повторный коннект (несколько раз) при получении ошибки в операциях чтения/записи 
+        var isConnected = _communicationPort.Connect("testPort"); // todo если порт отключен
+
+        if (isConnected)
         {
-            Id = Guid.NewGuid().ToString(),
-            IsSuccess = false,
-            ErrorCode = 123123,
-            ErrorMessage = "Error123123 Error123123"
-        };
+            try
+            {
+                _communicationPort.Write(command);
+
+                var taskCompletionSource = new TaskCompletionSource<CommandResult>(command.Id);
+                _taskCompletionSourcesDict.AddOrUpdate(command.Id, _ => taskCompletionSource,
+                    (_, _) => taskCompletionSource);
+
+                return await taskCompletionSource.Task.WaitAsync(Settings.CommandTimeout);
+            }
+            finally
+            {
+                _communicationPort.Disconnect(); // todo делаем 1 раз при завершении приложения
+            }
+        }
+        else
+        {
+            throw new Exception("Invalid port name");
+        }
     }
 }

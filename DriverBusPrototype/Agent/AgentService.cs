@@ -6,11 +6,11 @@ using DriverBusPrototype.Agent.Auth;
 
 namespace DriverBusPrototype.Agent;
 
-public class AgentService : IAgentService
+internal class AgentService : IAgentService
 {
     public async Task<string> GetEncryptionKey(Guid documentGuid)
     {
-        var getEncryptionKeyClientUrl = string.Format(Settings.ClientServiceGetEncryptionKeyUrl, documentGuid);
+        var getEncryptionKeyClientUrl = string.Format("http://127.0.0.1:5000/api/Encryption/{{0}}/encryptionKey", documentGuid);
 
         using (var client = new HttpClient(new AuthHttpHandler()))
         {
@@ -20,7 +20,7 @@ public class AgentService : IAgentService
         }
     }
 
-    public async Task<bool> SendEventsBatch(EventDto[] events)
+    public async Task<long> SendEventsBatch(EventDto[] events)
     {
         using (var client = new HttpClient(new AuthHttpHandler()))
         {
@@ -28,9 +28,16 @@ public class AgentService : IAgentService
 
             var content = new StringContent(jsContent, Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync(Settings.ClientServicePostEventsUrl, content);
+            var response = await client.PostAsync("http://127.0.0.1:5000/api/SaveEvents", content);
 
-            return response.StatusCode == HttpStatusCode.OK;
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return 1; //todo read result
+            }
+            else
+            {
+                throw new Exception("error" + response.StatusCode);
+            }
         }
     }
 }

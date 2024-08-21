@@ -4,5 +4,7 @@ namespace DriverBusPrototype.DriverCommands;
 
 public interface ICommandExecutor
 {
-    public CommandResult SendCommand(Command command);
+    public CommandResult ExecuteCommand(Command command);
+
+    Task<CommandResult> ExecuteCommandAsync(Command command);
 }

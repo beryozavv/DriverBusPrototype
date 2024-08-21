@@ -10,10 +10,18 @@
       <Compile Update="DriverCommands\CommandExecutor.cs">
         <DependentUpon>ICommandExecutor.cs</DependentUpon>
       </Compile>
+      <Compile Update="DriverCommands\NativePortMock.cs">
+        <DependentUpon>INativePortMock.cs</DependentUpon>
+      </Compile>
+      <Compile Update="DriverCommands\CommunicationPortMock.cs">
+        <DependentUpon>ICommunicationPort.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="CrossTech.DSS.Packages.Core.Models" Version="3.6.6" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+      <PackageReference Include="xunit.abstractions" Version="2.0.3" />
     </ItemGroup>
 
 </Project>

@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DriverBusPrototype", "Drive
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DriverBusPrototype.Tests", "DriverBusPrototype.Tests\DriverBusPrototype.Tests.csproj", "{5E5041A2-B85F-4F09-9158-6F219BDDF4BF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DriverBusPrototypeService", "DriverBusPrototypeService\DriverBusPrototypeService.csproj", "{9F64FAFB-2387-4615-9F4C-C5060E57A7FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{5E5041A2-B85F-4F09-9158-6F219BDDF4BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E5041A2-B85F-4F09-9158-6F219BDDF4BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E5041A2-B85F-4F09-9158-6F219BDDF4BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F64FAFB-2387-4615-9F4C-C5060E57A7FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F64FAFB-2387-4615-9F4C-C5060E57A7FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F64FAFB-2387-4615-9F4C-C5060E57A7FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F64FAFB-2387-4615-9F4C-C5060E57A7FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
