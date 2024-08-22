@@ -8,7 +8,8 @@ public class CommandTimeoutException : Exception
     {
     }
 
-    public CommandTimeoutException(string? message, TimeSpan? timeout, Exception? innerException = null) : base(message, innerException)
+    public CommandTimeoutException(string? message, TimeSpan? timeout, Exception? innerException = null) : base(message,
+        innerException)
     {
         Timeout = timeout;
     }

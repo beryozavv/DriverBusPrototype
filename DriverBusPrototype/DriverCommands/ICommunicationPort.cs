@@ -1,6 +1,6 @@
 ﻿namespace DriverBusPrototype.DriverCommands;
 
-public interface ICommunicationPort // todo IDisposable?
+public interface ICommunicationPort : IDisposable
 {
     /// <summary>
     /// Подключение к порту
@@ -8,11 +8,6 @@ public interface ICommunicationPort // todo IDisposable?
     /// <param name="portName">имя порта</param>
     /// <returns>Валиден ли порт</returns>
     bool Connect(string portName);
-
-    /// <summary>
-    /// Отключение от текущего порта
-    /// </summary>
-    void Disconnect();
 
     /// <summary>
     /// Считывание данных из текущего порта

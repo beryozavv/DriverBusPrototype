@@ -18,16 +18,16 @@ public class ParamsJson
     /// <summary>
     /// 
     /// </summary>
-    public TrustedApp[] TrustedApps { get; set; }
+    public TrustedApp[]? TrustedApps { get; set; }
 
     /// <summary>
     /// 
     /// </summary>
-    public FileFormat[] FileFormats { get; set; }
+    public FileFormat[]? FileFormats { get; set; }
 }
 
 public class TrustedApp
 {
-    public string AppName { get; set; }
-    public string Hash { get; set; }
+    public string AppName { get; set; } = null!;
+    public string Hash { get; set; } = null!;
 }

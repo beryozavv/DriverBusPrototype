@@ -91,6 +91,7 @@ public class CommandMarshalingTests
         Assert.Equal(command.Id, commandNew.Id);
         Assert.Equal(command.Type, commandNew.Type);
 
-        Assert.Equal(paramsJson.TrustedApps[0].Hash, paramsJsonNew!.TrustedApps[0].Hash);
+        Assert.NotNull(paramsJsonNew?.TrustedApps);
+        Assert.Equal(paramsJson.TrustedApps[0].Hash, paramsJsonNew.TrustedApps[0].Hash);
     }
 }

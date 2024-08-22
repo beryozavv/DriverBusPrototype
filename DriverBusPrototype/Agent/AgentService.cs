@@ -10,7 +10,7 @@ internal class AgentService : IAgentService
 {
     public async Task<string> GetEncryptionKey(Guid documentGuid)
     {
-        var getEncryptionKeyClientUrl = string.Format("http://127.0.0.1:5000/api/Encryption/{{0}}/encryptionKey", documentGuid);
+        var getEncryptionKeyClientUrl = string.Format("http://127.0.0.1:5000/api/Encryption/{0}/encryptionKey", documentGuid);
 
         using (var client = new HttpClient(new AuthHttpHandler()))
         {

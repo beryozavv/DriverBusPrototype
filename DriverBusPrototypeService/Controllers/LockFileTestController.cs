@@ -6,13 +6,6 @@ namespace DriverBusPrototypeService.Controllers;
 [Route("[controller]/[action]")]
 public class LockFileTestController : ControllerBase
 {
-    private readonly ILogger<LockFileTestController> _logger;
-
-    public LockFileTestController(ILogger<LockFileTestController> logger)
-    {
-        _logger = logger;
-    }
-
     [HttpGet(Name = "LockTheFileShareRead")]
     public async Task<IActionResult> LockShareRead(string path)
     {

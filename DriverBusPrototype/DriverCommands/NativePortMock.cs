@@ -12,6 +12,8 @@ internal class NativePortMock : INativePortMock
     private readonly ITestOutputHelper _testOutputHelper;
     private string? _portName;
     private readonly ConcurrentStack<string> _commandIds = new();
+    private int _readCounter;
+    private int _writeCounter;
 
     public NativePortMock(ITestOutputHelper testOutputHelper)
     {
@@ -32,12 +34,17 @@ internal class NativePortMock : INativePortMock
         while (true)
         {
             Thread.Sleep(_readTimeout);
+            Interlocked.Increment(ref _readCounter);
+            if (_readCounter % 2 == 0)
+            {
+                throw new PortConnectionException("test ex");
+            }
             if (_commandIds.TryPop(out var commandId))
             {
                 var commandResult = GetTestResult(commandId);
 
                 var dataPtr = StructureToPtrHelper.GetStructurePtr(commandResult);
-                
+
                 _testOutputHelper.WriteLine("Driver send result by commandId = " + commandId);
 
                 return dataPtr;
@@ -47,6 +54,12 @@ internal class NativePortMock : INativePortMock
 
     public void Write(IntPtr commandPtr)
     {
+        Interlocked.Increment(ref _writeCounter);
+        if (_writeCounter % 2 == 1)
+        {
+            throw new PortConnectionException("test ex");
+        }
+        
         var command = Marshal.PtrToStructure<Command>(commandPtr);
 
         // драйвер обрабатывает команду:
@@ -63,7 +76,7 @@ internal class NativePortMock : INativePortMock
             var paramsJson = JsonSerializer.Deserialize<ParamsJson>(command.Parameters);
 
             _testOutputHelper.WriteLine("command id = " + command.Id + "  file formats " +
-                                        string.Join(',', paramsJson!.FileFormats));
+                                        string.Join(',', paramsJson!.FileFormats!));
         }
         else if (command.Type == (int)CommandType.SetPermissions)
         {
