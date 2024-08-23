@@ -1,5 +1,4 @@
-﻿using CrossTech.DSS.Packages.Core.Models.DTO.Event;
-using CrossTech.DSS.Packages.Core.Models.Enums;
+﻿using CrossTech.DSS.Packages.Core.Models.Enums;
 using DriverBusPrototype.Agent;
 using Xunit;
 using Xunit.Abstractions;

@@ -1,5 +1,6 @@
 using DriverBusPrototype;
 using DriverBusPrototypeService;
+using DriverBusPrototypeService.Filters;
 using Xunit.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDriverBusServices();
 builder.Services.AddSingleton<ITestOutputHelper, TestOutputHelper>();
+builder.Services.AddScoped<ApiKeyAuthFilter>();
 //builder.Services.AddHostedService<CommandResultBackgroundService>();
 
 var app = builder.Build();

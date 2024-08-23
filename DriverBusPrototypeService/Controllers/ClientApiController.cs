@@ -1,10 +1,12 @@
 using System.Security.Cryptography;
 using System.Text;
 using DriverBusPrototype.Agent;
+using DriverBusPrototypeService.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DriverBusPrototypeService.Controllers;
 
+[ApiKey]
 [ApiController]
 [Route("api")]
 public class ClientApiController : ControllerBase
