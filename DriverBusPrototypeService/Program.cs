@@ -10,7 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDriverBusServices();
 builder.Services.AddSingleton<ITestOutputHelper, TestOutputHelper>();
-builder.Services.AddHostedService<CommandResultBackgroundService>();
+//builder.Services.AddHostedService<CommandResultBackgroundService>();
 
 var app = builder.Build();
 app.UseSwagger();

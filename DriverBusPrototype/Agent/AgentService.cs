@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
-using CrossTech.DSS.Packages.Core.Models.DTO.Event;
 using DriverBusPrototype.Agent.Auth;
 
 namespace DriverBusPrototype.Agent;
@@ -20,7 +19,7 @@ internal class AgentService : IAgentService
         }
     }
 
-    public async Task<long> SendEventsBatch(EventDto[] events)
+    public async Task<long> SendEventsBatch(DriverEventDto[] events)
     {
         using (var client = new HttpClient(new AuthHttpHandler()))
         {
@@ -30,13 +29,18 @@ internal class AgentService : IAgentService
 
             var response = await client.PostAsync("http://127.0.0.1:5000/api/SaveEvents", content);
 
+            var responseText = await response.Content.ReadAsStringAsync();
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                return 1; //todo read result
+                if (long.TryParse(responseText, out var responseMaxId))
+                {
+                    return responseMaxId;
+                }
+                return 0;
             }
             else
             {
-                throw new Exception("error" + response.StatusCode);
+                throw new Exception("error" + response.StatusCode + " " + responseText);
             }
         }
     }

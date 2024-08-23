@@ -39,12 +39,17 @@ public class AgentServiceTests
     }
 
     [Theory, MemberData(nameof(Events))]
-    public async Task PostEventsTest(EventDto[] events)
+    public async Task PostEventsTest(DriverEventDto[] events)
     {
         IAgentService agentService = new AgentService();
-        var sendEvents = await agentService.SendEventsBatch(events);
-
-        //Assert.True(sendEvents);
+        var sendEventsId = await agentService.SendEventsBatch(events);
+        _testOutputHelper.WriteLine($"readMaxId={sendEventsId}");
+        
+        var maxId = events.Max(e => e.DriverId);
+        Assert.Equal(maxId, sendEventsId);
+        
+        var sendEmptyEventsId = await agentService.SendEventsBatch(Array.Empty<DriverEventDto>());
+        Assert.Equal(sendEventsId, sendEmptyEventsId);
     }
 
     public static IEnumerable<object[]> Events
@@ -55,17 +60,32 @@ public class AgentServiceTests
             {
                 new[]
                 {
-                    new EventDto
+                    new DriverEventDto
                     {
+                        DriverId = 120,
                         DocGuid = Guid.NewGuid(),
                         DocAuthor = "test",
                         DocType = "??",
                         EventType = eEventType.OpenDocEvent,
+                        EventDateTimeUtc = DateTime.UtcNow,
                         FileName = "test.docx",
-                        FilePath = "c:\\",
-                        // Id = todo где поле для Id?
+                        FilePath = "c:\\test.docx",
+                        UserId = "123testSid789",
+                        MarkerGuid = Guid.NewGuid()
                     },
-                    new EventDto()
+                    new DriverEventDto
+                    {
+                        DriverId = 125,
+                        DocGuid = Guid.NewGuid(),
+                        DocAuthor = "test",
+                        DocType = "??",
+                        EventType = eEventType.OpenDocEvent,
+                        EventDateTimeUtc = DateTime.UtcNow,
+                        FileName = "test.docx",
+                        FilePath = "c:\\test.docx",
+                        UserId = "123testSid789",
+                        MarkerGuid = Guid.NewGuid()
+                    }
                 }
             };
         }
