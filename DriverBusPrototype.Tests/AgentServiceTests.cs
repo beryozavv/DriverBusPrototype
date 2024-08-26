@@ -44,7 +44,7 @@ public class AgentServiceTests
         var sendEventsId = await agentService.SendEventsBatch(events);
         _testOutputHelper.WriteLine($"readMaxId={sendEventsId}");
         
-        var maxId = events.Max(e => e.DriverId);
+        var maxId = events.Max(e => e.DriverEventId);
         Assert.Equal(maxId, sendEventsId);
         
         var sendEmptyEventsId = await agentService.SendEventsBatch(Array.Empty<DriverEventDto>());
@@ -61,7 +61,7 @@ public class AgentServiceTests
                 {
                     new DriverEventDto
                     {
-                        DriverId = 120,
+                        DriverEventId = 120,
                         DocGuid = Guid.NewGuid(),
                         DocAuthor = "test",
                         DocType = "??",
@@ -74,7 +74,7 @@ public class AgentServiceTests
                     },
                     new DriverEventDto
                     {
-                        DriverId = 125,
+                        DriverEventId = 125,
                         DocGuid = Guid.NewGuid(),
                         DocAuthor = "test",
                         DocType = "??",

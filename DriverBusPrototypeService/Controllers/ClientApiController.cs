@@ -43,7 +43,7 @@ public class ClientApiController : ControllerBase
             }
         }
 
-        var maxId = events.Max(e => e.DriverId);
+        var maxId = events.Max(e => e.DriverEventId);
 
         _logger.LogInformation("Max eventId from events batch = {maxId}. Events count = {count}", maxId, events.Length);
 
@@ -52,7 +52,7 @@ public class ClientApiController : ControllerBase
         {
             _logger.LogInformation(
                 "DriverId = {0}, EventType={1}, EventDate={2}, DocGuid={3}, FileName={4}, MarkerGuid = {5}",
-                driverEventDto.DriverId, driverEventDto.EventType, driverEventDto.EventDateTimeUtc,
+                driverEventDto.DriverEventId, driverEventDto.EventType, driverEventDto.EventDateTimeUtc,
                 driverEventDto.DocGuid, driverEventDto.FileName, driverEventDto.MarkerGuid);
         }
 

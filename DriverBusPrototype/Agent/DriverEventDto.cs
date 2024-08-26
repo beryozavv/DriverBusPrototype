@@ -6,7 +6,7 @@ namespace DriverBusPrototype.Agent;
 [DataContract]
 public class DriverEventDto
 {
-    [DataMember] public long DriverId { get; set; }
+    [DataMember] public long DriverEventId { get; set; }
 
     [DataMember] public eEventType? EventType { get; set; }
 
