@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using CrossTech.DSS.Packages.Core.Models.Enums;
 using DriverBusPrototype.DriverCommands;
 using DriverBusPrototype.DriverCommands.Models;
 using Xunit;
@@ -97,10 +98,8 @@ public class CommandExecutorTests : IDisposable
         var permissionsJson = new PermissionsJson
         {
             UserId = "123 My test SID 123",
-            EncryptionPermissions = new Dictionary<Guid, int>
-                { { Guid.NewGuid(), 2 }, { Guid.NewGuid(), 4 }, { Guid.NewGuid(), 8 } },
-            MarkerPermisions = new Dictionary<Guid, int>
-                { { Guid.NewGuid(), 8 }, { Guid.NewGuid(), 16 }, { Guid.NewGuid(), 32 } }
+            EncryptionPermissions = new Dictionary<Guid, ePermissions> {{Guid.NewGuid(), ePermissions.Set}, {Guid.NewGuid(), ePermissions.Print}, {Guid.NewGuid(), ePermissions.Edit}},
+            MarkerPermisions = new Dictionary<Guid, ePermissions> {{Guid.NewGuid(), ePermissions.SaveAs}, {Guid.NewGuid(), ePermissions.Edit}, {Guid.NewGuid(), ePermissions.CopyContent}}
         };
 
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, WriteIndented = true };

@@ -1,5 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using CrossTech.DSS.Packages.Core.Models.Enums;
 using DriverBusPrototype.DriverCommands.Models;
 using Xunit;
 using Xunit.Abstractions;
@@ -21,11 +23,11 @@ public class CommandMarshalingTests
         var permissionsJson = new PermissionsJson
         {
             UserId = "123 My test SID 123",
-            EncryptionPermissions = new Dictionary<Guid, int> {{Guid.NewGuid(), 2}, {Guid.NewGuid(), 4}, {Guid.NewGuid(), 8}},
-            MarkerPermisions = new Dictionary<Guid, int> {{Guid.NewGuid(), 8}, {Guid.NewGuid(), 16}, {Guid.NewGuid(), 32}}
+            EncryptionPermissions = new Dictionary<Guid, ePermissions> {{Guid.NewGuid(), ePermissions.Set|ePermissions.Open}, {Guid.NewGuid(), ePermissions.Print}, {Guid.NewGuid(), ePermissions.Edit|ePermissions.Screenshot}},
+            MarkerPermisions = new Dictionary<Guid, ePermissions> {{Guid.NewGuid(), ePermissions.SaveAs}, {Guid.NewGuid(), ePermissions.Edit}, {Guid.NewGuid(), ePermissions.CopyContent|ePermissions.Print|ePermissions.SetMarkerWithLowerCriticalLevel}}
         };
 
-        var options = new JsonSerializerOptions {PropertyNameCaseInsensitive = true, WriteIndented = true};
+        var options = new JsonSerializerOptions {PropertyNameCaseInsensitive = true, WriteIndented = true, Converters = { new JsonStringEnumConverter() }};
         var json = JsonSerializer.Serialize(permissionsJson, options);
 
         var command = new Command
@@ -43,7 +45,7 @@ public class CommandMarshalingTests
         // Marshal the unmanaged memory to the struct
         var commandNew = Marshal.PtrToStructure<Command>(ptr);
 
-        var permissionsJsonNew = JsonSerializer.Deserialize<PermissionsJson>(commandNew.Parameters);
+        var permissionsJsonNew = JsonSerializer.Deserialize<PermissionsJson>(commandNew.Parameters, options);
 
         _testOutputHelper.WriteLine($"{commandNew.Id + " - " + (CommandType) commandNew.Type + " - " + commandNew.Parameters}");
 
@@ -65,13 +67,13 @@ public class CommandMarshalingTests
             FileFormats = new[] {FileFormat.Doc, FileFormat.Docx, FileFormat.Pdf}
         };
 
-        var options = new JsonSerializerOptions {PropertyNameCaseInsensitive = true, WriteIndented = true};
+        var options = new JsonSerializerOptions {PropertyNameCaseInsensitive = true, WriteIndented = true, Converters = { new JsonStringEnumConverter() }};
         var json = JsonSerializer.Serialize(paramsJson, options);
 
         var command = new Command
         {
             Id = Guid.NewGuid().ToString(),
-            Type = (int) CommandType.SetPermissions,
+            Type = (int) CommandType.SetParams,
             IsEncrypted = false,
             Parameters = json
         };
