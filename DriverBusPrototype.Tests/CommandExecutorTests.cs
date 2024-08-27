@@ -87,7 +87,7 @@ public class CommandExecutorTests : IDisposable
         {
             Id = Guid.NewGuid().ToString(),
             IsEncrypted = false,
-            Type = (int)CommandType.SetParams,
+            Type = CommandType.SetParams,
             Parameters = json
         };
         return command;
@@ -109,7 +109,7 @@ public class CommandExecutorTests : IDisposable
         {
             Id = Guid.NewGuid().ToString(),
             IsEncrypted = false,
-            Type = (int)CommandType.SetPermissions,
+            Type = CommandType.SetPermissions,
             Parameters = json
         };
         return command;

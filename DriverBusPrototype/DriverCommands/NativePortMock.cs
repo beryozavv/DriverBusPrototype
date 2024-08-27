@@ -28,7 +28,7 @@ internal class NativePortMock : INativePortMock
         return true;
     }
 
-    public IntPtr Read()
+    public void Read(out IntPtr dataPtr, out int dataSize)
     {
         // драйвер готовит результат команды
         while (true)
@@ -39,28 +39,31 @@ internal class NativePortMock : INativePortMock
             {
                 throw new PortConnectionException("test ex");
             }
+
             if (_commandIds.TryPop(out var commandId))
             {
                 var commandResult = GetTestResult(commandId);
 
-                var dataPtr = StructureToPtrHelper.GetStructurePtr(commandResult);
+                (dataPtr, dataSize) = ProtoConverter.ObjectToProtoPtr(commandResult);
+                
+                return;
 
                 _testOutputHelper.WriteLine("Driver send result by commandId = " + commandId);
-
-                return dataPtr;
             }
         }
     }
 
-    public void Write(IntPtr commandPtr)
+    public void Write(IntPtr commandPtr, int size)
     {
         Interlocked.Increment(ref _writeCounter);
         if (_writeCounter % 2 == 1)
         {
             throw new PortConnectionException("test ex");
         }
+
+        var command = ProtoConverter.ObjectFromProtoPtr<Command>(commandPtr, size);
         
-        var command = Marshal.PtrToStructure<Command>(commandPtr);
+        Marshal.FreeHGlobal(commandPtr);
 
         // драйвер обрабатывает команду:
 
@@ -71,14 +74,14 @@ internal class NativePortMock : INativePortMock
             throw new NotImplementedException();
         }
 
-        if (command.Type == (int)CommandType.SetParams)
+        if (command.Type == CommandType.SetParams)
         {
             var paramsJson = JsonSerializer.Deserialize<ParamsJson>(command.Parameters);
 
             _testOutputHelper.WriteLine("command id = " + command.Id + "  file formats " +
                                         string.Join(',', paramsJson!.FileFormats!));
         }
-        else if (command.Type == (int)CommandType.SetPermissions)
+        else if (command.Type == CommandType.SetPermissions)
         {
             var permissionsJson = JsonSerializer.Deserialize<PermissionsJson>(command.Parameters);
 

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option csharp_namespace = "DriverBusPrototype.DriverCommands.Models";
+
+message CommandResult {
+  string Id = 1;  
+  bool IsSuccess = 2;
+  int32 ErrorCode = 3;
+  string ErrorMessage = 4;
+}
