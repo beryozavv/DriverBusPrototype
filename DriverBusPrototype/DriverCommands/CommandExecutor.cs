@@ -15,7 +15,7 @@ internal class CommandExecutor : ICommandExecutor
         _communicationPort = communicationPort;
 
         //todo для теста. вынести в фоновый сервис
-        Task.Run(() =>
+        var backgroundTask = Task.Run(() =>
         {
             while (true)
             {

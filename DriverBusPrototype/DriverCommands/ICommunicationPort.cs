@@ -13,11 +13,11 @@ public interface ICommunicationPort : IDisposable
     /// Считывание данных из текущего порта
     /// </summary>
     /// <returns>Результат выполнения команды</returns>
-    T Read<T>() where T:struct;
+    T? Read<T>() where T: class;
 
     /// <summary>
     /// Запись данных в текущий порт
     /// </summary>
     /// <param name="command">Команда на выполнение</param>
-    void Write<T>(T command) where T : struct;
+    void Write<T>(T command) where T : class;
 }

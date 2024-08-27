@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "DriverBusPrototype.DriverCommands.Models";
+
+enum CommandType {
+  Default = 0;
+  SetParams = 1;
+  SetPermissions = 2;
+}
+
+
+message Command {
+  string Id = 1;
+  CommandType Type = 2;
+  bool IsEncrypted = 3;
+  string Parameters = 4;
+}

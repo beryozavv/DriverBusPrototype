@@ -47,14 +47,16 @@ internal class CommunicationPortMock : ICommunicationPort
         return _nativePortMock.Connect(portName);
     }
 
-    public T Read<T>() where T : struct
+    public T? Read<T>() where T : class
     {
         return _retryPolicy.Execute(static context =>
             {
                 ((ITestOutputHelper)context[LoggerKey]).WriteLine("Начинаем считывание результатов команд из драйвера");
-                var resultPtr = ((INativePortMock)context[NativePortKey]).Read();
+                ((INativePortMock)context[NativePortKey]).Read(out var resultPtr, out var size);
 
-                var commandResult = Marshal.PtrToStructure<T>(resultPtr);
+                var commandResult = ProtoConverter.ObjectFromProtoPtr<T>(resultPtr, size);
+                
+                Marshal.FreeHGlobal(resultPtr);
 
                 return commandResult;
             },
@@ -62,17 +64,16 @@ internal class CommunicationPortMock : ICommunicationPort
                 { { NativePortKey, _nativePortMock }, { LoggerKey, _testOutputHelper }, { PortKey, _portName! }, {MethodKey, nameof(Read)} });
     }
 
-    public void Write<T>(T command) where T : struct
+    public void Write<T>(T command) where T : class
     {
         _retryPolicy.Execute(static context =>
             {
-                var commandPtr =
-                    StructureToPtrHelper.GetStructurePtr((T)context[CommandKey]);
+                var (commandPtr, size) = ProtoConverter.ObjectToProtoPtr((T)context[CommandKey]);
 
                 ((ITestOutputHelper)context[LoggerKey]).WriteLine(
                     $"Отправляем в драйвер указатель на команду {((Command)context[CommandKey]).Id} commandPtr = " + commandPtr);
 
-                ((INativePortMock)context[NativePortKey]).Write(commandPtr);
+                ((INativePortMock)context[NativePortKey]).Write(commandPtr, size);
             },
             new Dictionary<string, object>
             {
