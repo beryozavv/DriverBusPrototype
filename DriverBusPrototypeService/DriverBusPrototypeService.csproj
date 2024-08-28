@@ -6,8 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
     
-    <ItemGroup>
-        <PackageReference Include="CrossTech.DSS.Packages.Core.Context" Version="1416.5.3" />
+    <ItemGroup>        
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
     </ItemGroup>
     

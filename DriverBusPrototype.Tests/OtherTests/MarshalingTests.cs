@@ -1,9 +1,10 @@
 ﻿using System.Runtime.InteropServices;
 using Xunit;
 using Xunit.Abstractions;
+
 #pragma warning disable CS8601
 
-namespace DriverBusPrototype.Tests.Other;
+namespace DriverBusPrototype.Tests.OtherTests;
 
 public class MarshalingTests
 {

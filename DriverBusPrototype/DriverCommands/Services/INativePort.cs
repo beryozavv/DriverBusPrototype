@@ -1,6 +1,6 @@
-namespace DriverBusPrototype.DriverCommands;
+namespace DriverBusPrototype.DriverCommands.Services;
 
-public interface INativePortMock
+public interface INativePort
 {
     public bool Connect(string portName);
     public void Read(out IntPtr dataPtr, out int dataSize); // todo Здесь мы задаем буфер?   

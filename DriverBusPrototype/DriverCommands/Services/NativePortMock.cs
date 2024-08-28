@@ -1,30 +1,34 @@
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using DriverBusPrototype.DriverCommands.Helpers;
 using DriverBusPrototype.DriverCommands.Models;
-using Xunit.Abstractions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
-namespace DriverBusPrototype.DriverCommands;
+namespace DriverBusPrototype.DriverCommands.Services;
 
-internal class NativePortMock : INativePortMock
+internal class NativePortMock : INativePort
 {
-    private readonly TimeSpan _readTimeout;
-    private readonly ITestOutputHelper _testOutputHelper;
+    private readonly ILogger<NativePortMock> _logger;
+    private readonly DriverBusSettings _settings;
     private string? _portName;
     private readonly ConcurrentStack<string> _commandIds = new();
     private int _readCounter;
     private int _writeCounter;
 
-    public NativePortMock(ITestOutputHelper testOutputHelper)
+    public NativePortMock(ILogger<NativePortMock> logger, IOptions<DriverBusSettings> settings)
     {
-        _readTimeout = Settings.ReadTimout;
-        _testOutputHelper = testOutputHelper;
+        if (settings == null) throw new ArgumentNullException(nameof(settings));
+
+        _logger = logger;
+        _settings = settings.Value;
     }
 
     public bool Connect(string portName)
     {
         _portName = portName;
-        _testOutputHelper.WriteLine("Connected to port " + portName);
+        _logger.LogInformation("Connected to port {Name}", portName);
         return true;
     }
 
@@ -33,9 +37,9 @@ internal class NativePortMock : INativePortMock
         // драйвер готовит результат команды
         while (true)
         {
-            Thread.Sleep(_readTimeout);
+            Thread.Sleep(_settings.ReadTimeout);
             Interlocked.Increment(ref _readCounter);
-            if (_readCounter % 2 == 0)
+            if (_settings.NativePortMockExceptions && _readCounter % 2 == 0)
             {
                 throw new PortConnectionException("test ex");
             }
@@ -45,9 +49,9 @@ internal class NativePortMock : INativePortMock
                 var commandResult = GetTestResult(commandId);
 
                 (dataPtr, dataSize) = ProtoConverter.ObjectToProtoPtr(commandResult);
-                
-                _testOutputHelper.WriteLine("Driver send result by commandId = " + commandId);
-                
+
+                _logger.LogInformation("Driver send result by commandId = {Id}", commandId);
+
                 return;
             }
         }
@@ -56,13 +60,13 @@ internal class NativePortMock : INativePortMock
     public void Write(IntPtr commandPtr, int size)
     {
         Interlocked.Increment(ref _writeCounter);
-        if (_writeCounter % 2 == 1)
+        if (_settings.NativePortMockExceptions && _writeCounter % 2 == 1)
         {
             throw new PortConnectionException("test ex");
         }
 
         var command = ProtoConverter.ObjectFromProtoPtr<Command>(commandPtr, size);
-        
+
         Marshal.FreeHGlobal(commandPtr);
 
         // драйвер обрабатывает команду:
@@ -71,27 +75,27 @@ internal class NativePortMock : INativePortMock
 
         if (command.IsEncrypted)
         {
-            throw new NotImplementedException();
+            _logger.LogWarning("Command is encrypted");
         }
 
         if (command.Type == CommandType.SetParams)
         {
             var paramsJson = JsonSerializer.Deserialize<ParamsJson>(command.Parameters);
 
-            _testOutputHelper.WriteLine("command id = " + command.Id + "  file formats " +
-                                        string.Join(',', paramsJson!.FileFormats!));
+            _logger.LogInformation("command id = {Id} file formats = {Formats}", command.Id,
+                string.Join(',', paramsJson!.FileFormats!));
         }
         else if (command.Type == CommandType.SetPermissions)
         {
             var permissionsJson = JsonSerializer.Deserialize<PermissionsJson>(command.Parameters);
 
-            _testOutputHelper.WriteLine("command id = " + command.Id + " userId = " + permissionsJson!.UserId);
+            _logger.LogInformation("command id = {Id} userId = {UserId}", command.Id, permissionsJson!.UserId);
         }
     }
 
     public void Disconnect()
     {
-        _testOutputHelper.WriteLine("Disconnected from port " + _portName);
+        _logger.LogInformation("Disconnected from port {Port}", _portName);
     }
 
     private CommandResult GetTestResult(string commandId)

@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 
-namespace DriverBusPrototype.DriverCommands;
+namespace DriverBusPrototype.DriverCommands.Helpers;
 
 internal static class ProtoConverter
 {

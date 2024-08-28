@@ -1,7 +1,9 @@
-﻿using System.Text.Json;
-using CrossTech.DSS.Packages.Core.Models.Enums;
-using DriverBusPrototype.DriverCommands;
-using DriverBusPrototype.DriverCommands.Models;
+﻿using DriverBusPrototype.DriverCommands;
+using DriverBusPrototype.DriverCommands.Helpers;
+using DriverBusPrototype.DriverCommands.Services;
+using DriverBusPrototype.Tests.Mocks;
+using Microsoft.Extensions.Options;
+using Moq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -11,23 +13,35 @@ public class CommandExecutorTests : IDisposable
 {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly ICommunicationPort _communicationPort;
+    private readonly Mock<IOptions<DriverBusSettings>> _settingsMock;
 
     public CommandExecutorTests(ITestOutputHelper testOutputHelper)
     {
+        _settingsMock = new Mock<IOptions<DriverBusSettings>>();
+        _settingsMock.Setup(o => o.Value).Returns(new DriverBusSettings
+        {
+            CommandTimeout = Settings.CommandTimeout, ReadTimeout = Settings.ReadTimout,
+            NativePortMockExceptions = Settings.NativePortMockExceptions
+        });
+
         _testOutputHelper = testOutputHelper;
-        INativePortMock nativePortMock = new NativePortMock(_testOutputHelper);
-        _communicationPort = new CommunicationPortMock(_testOutputHelper, nativePortMock);
+        INativePort nativePort =
+            new NativePortMock(new LoggerMock<NativePortMock>(_testOutputHelper), _settingsMock.Object);
+        _communicationPort =
+            new CommunicationPort(new LoggerMock<CommunicationPort>(_testOutputHelper), nativePort);
         _communicationPort.Connect("TestPortName");
     }
 
     [Fact]
-    public async Task SendParamsCommandAsyncTest()
+    public async Task SendParamsCommandTest()
     {
-        ICommandExecutor commandExecutor = new CommandExecutor(_communicationPort);
+        ICommandExecutor commandExecutor =
+            new CommandExecutorMock(_communicationPort, new LoggerMock<CommandExecutorMock>(_testOutputHelper),
+                _settingsMock.Object);
 
-        var commandParams = PrepareParamsCommand();
+        var commandParams = TestCommandsHelper.PrepareParamsCommand();
 
-        var commandPermissions = PreparePermissionsCommand();
+        var commandPermissions = TestCommandsHelper.PreparePermissionsCommand();
 
         var permissionsTask = commandExecutor.ExecuteCommandAsync(commandPermissions);
 
@@ -52,67 +66,50 @@ public class CommandExecutorTests : IDisposable
             Assert.Contains(commandResult.Id, ids);
         }
     }
-    
-    [Fact]
-    public async Task SendParamsCommandAsyncTimeoutExTest()
-    {
-        ICommandExecutor commandExecutor = new CommandExecutor(_communicationPort);
 
-        var command = PrepareParamsCommand();
+    [Fact]
+    public async Task SendParamsCommandTimeoutExTest()
+    {
+        var localSettingsMock = new Mock<IOptions<DriverBusSettings>>();
+        localSettingsMock.Setup(o => o.Value).Returns(new DriverBusSettings
+        {
+            CommandTimeout = TimeSpan.FromSeconds(1), ReadTimeout = TimeSpan.FromSeconds(5),
+            NativePortMockExceptions = false
+        });
+        
+        INativePort nativePort =
+            new NativePortMock(new LoggerMock<NativePortMock>(_testOutputHelper), localSettingsMock.Object);
+        var communicationPort =
+            new CommunicationPort(new LoggerMock<CommunicationPort>(_testOutputHelper), nativePort);
+        communicationPort.Connect("TestPortName");
+
+        ICommandExecutor commandExecutor =
+            new CommandExecutorMock(communicationPort, new LoggerMock<CommandExecutorMock>(_testOutputHelper),
+                localSettingsMock.Object);
+
+        var command = TestCommandsHelper.PrepareParamsCommand();
 
         var commandTimeoutException = await Assert.ThrowsAsync<TimeoutException>(async () =>
             await commandExecutor.ExecuteCommandAsync(command));
 
+        _testOutputHelper.WriteLine($"A TimeoutException was thrown: {commandTimeoutException}");
+    }
+
+    [Fact]
+    public async Task SendParamsCommandCancellationTest()
+    {
+        ICommandExecutor commandExecutor =
+            new CommandExecutorMock(_communicationPort, new LoggerMock<CommandExecutorMock>(_testOutputHelper),
+                _settingsMock.Object);
+
+        var command = TestCommandsHelper.PrepareParamsCommand();
+
+        var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(20));
+
+        var commandTimeoutException = await Assert.ThrowsAsync<TaskCanceledException>(async () =>
+            await commandExecutor.ExecuteCommandAsync(command, cts.Token));
+
         _testOutputHelper.WriteLine($"A CommandTimeoutException was thrown {commandTimeoutException}");
-    }
-
-    private static Command PrepareParamsCommand()
-    {
-        var paramsJson = new ParamsJson
-        {
-            IsDriverEnabled = true,
-            TrustedApps = new[]
-            {
-                new TrustedApp { AppName = "Word", Hash = "abc123Hash" },
-                new TrustedApp { AppName = "Acrobat", Hash = "qwe123Hash" }
-            },
-            EventsBatchSize = 10,
-            FileFormats = new[] { FileFormat.Doc, FileFormat.Docx, FileFormat.Pdf, FileFormat.Xls, FileFormat.Xlsx }
-        };
-
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, WriteIndented = true };
-        var json = JsonSerializer.Serialize(paramsJson, options);
-
-        var command = new Command
-        {
-            Id = Guid.NewGuid().ToString(),
-            IsEncrypted = false,
-            Type = CommandType.SetParams,
-            Parameters = json
-        };
-        return command;
-    }
-
-    private static Command PreparePermissionsCommand()
-    {
-        var permissionsJson = new PermissionsJson
-        {
-            UserId = "123 My test SID 123",
-            EncryptionPermissions = new Dictionary<Guid, ePermissions> {{Guid.NewGuid(), ePermissions.Set}, {Guid.NewGuid(), ePermissions.Print}, {Guid.NewGuid(), ePermissions.Edit}},
-            MarkerPermisions = new Dictionary<Guid, ePermissions> {{Guid.NewGuid(), ePermissions.SaveAs}, {Guid.NewGuid(), ePermissions.Edit}, {Guid.NewGuid(), ePermissions.CopyContent}}
-        };
-
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, WriteIndented = true };
-        var json = JsonSerializer.Serialize(permissionsJson, options);
-
-        var command = new Command
-        {
-            Id = Guid.NewGuid().ToString(),
-            IsEncrypted = false,
-            Type = CommandType.SetPermissions,
-            Parameters = json
-        };
-        return command;
     }
 
     public void Dispose()

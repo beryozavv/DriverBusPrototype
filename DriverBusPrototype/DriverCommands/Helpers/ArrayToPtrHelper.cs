@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace DriverBusPrototype.DriverCommands;
+namespace DriverBusPrototype.DriverCommands.Helpers;
 
 public static class ArrayToPtrHelper
 {

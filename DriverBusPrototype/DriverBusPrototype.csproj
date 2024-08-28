@@ -7,23 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Update="DriverCommands\CommandExecutor.cs">
-        <DependentUpon>ICommandExecutor.cs</DependentUpon>
-      </Compile>
-      <Compile Update="DriverCommands\NativePortMock.cs">
-        <DependentUpon>INativePortMock.cs</DependentUpon>
-      </Compile>
-      <Compile Update="DriverCommands\CommunicationPortMock.cs">
-        <DependentUpon>ICommunicationPort.cs</DependentUpon>
-      </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="CrossTech.DSS.Packages.Core.Models" Version="3.6.6" />
+      <PackageReference Include="CrossTech.DSS.Packages.Core.Context" Version="1416.5.3" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />      
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
       <PackageReference Include="Polly" Version="8.4.1" />
-      <PackageReference Include="protobuf-net" Version="3.2.30" />
-      <PackageReference Include="xunit.abstractions" Version="2.0.3" />
-    </ItemGroup>
+      <PackageReference Include="protobuf-net" Version="3.2.30" />      
+    </ItemGroup>    
 
 </Project>

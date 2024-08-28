@@ -2,7 +2,7 @@
 using Xunit;
 using Xunit.Abstractions;
 
-namespace DriverBusPrototype.Tests.Other;
+namespace DriverBusPrototype.Tests.OtherTests;
 
 public class StringMarshalerTests
 {

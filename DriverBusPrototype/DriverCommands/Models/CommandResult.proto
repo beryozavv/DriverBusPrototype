@@ -1,10 +1,12 @@
 syntax = "proto3";
 
+import "google/protobuf/wrappers.proto";
+
 option csharp_namespace = "DriverBusPrototype.DriverCommands.Models";
 
 message CommandResult {
   string Id = 1;  
   bool IsSuccess = 2;
-  int32 ErrorCode = 3;
-  string ErrorMessage = 4;
+  google.protobuf.Int32Value ErrorCode = 3;
+  google.protobuf.StringValue ErrorMessage = 4;
 }

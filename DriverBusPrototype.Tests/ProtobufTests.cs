@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using CrossTech.DSS.Packages.Core.Models.Enums;
-using DriverBusPrototype.DriverCommands;
+using DriverBusPrototype.DriverCommands.Helpers;
 using DriverBusPrototype.DriverCommands.Models;
 using Xunit;
 using Xunit.Abstractions;

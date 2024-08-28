@@ -24,11 +24,12 @@ namespace DriverBusPrototype.DriverCommands.Models
         public bool IsSuccess { get; set; }
 
         [global::ProtoBuf.ProtoMember(3)]
-        public int ErrorCode { get; set; }
+        [global::ProtoBuf.NullWrappedValue]
+        public int? ErrorCode { get; set; }
 
         [global::ProtoBuf.ProtoMember(4)]
-        [global::System.ComponentModel.DefaultValue("")]
-        public string ErrorMessage { get; set; } = "";
+        [global::ProtoBuf.NullWrappedValue]
+        public string ErrorMessage { get; set; }
 
     }
 
