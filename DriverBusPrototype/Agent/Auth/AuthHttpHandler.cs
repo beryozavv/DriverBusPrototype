@@ -1,4 +1,6 @@
-﻿namespace DriverBusPrototype.Agent.Auth
+﻿using CrossTech.DSS.Packages.Core.Context;
+
+namespace DriverBusPrototype.Agent.Auth
 {
     /// <summary>
     /// Http-обработчик с политикой повторов при неудачной авторизации

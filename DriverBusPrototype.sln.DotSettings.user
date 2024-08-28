@@ -5,6 +5,8 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\beryo\.nuget\packages\xunit.abstractions\2.0.3\lib\netstandard2.0\xunit.abstractions.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/Hierarchy/Build/BuildTool/CustomBuildToolPath/@EntryValue">C:\Program Files\JetBrains\JetBrains Rider 2023.3.5\tools\MSBuild\Current\Bin\amd64\MSBuild.exe</s:String>
+	<s:Int64 x:Key="/Default/Environment/Hierarchy/Build/BuildTool/MsbuildVersion/@EntryValue">1114112</s:Int64>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b647b56e_002D5704_002D43ac_002Da2b2_002D41e8c36a36f6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="RoundTimeLoopTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::5E5041A2-B85F-4F09-9158-6F219BDDF4BF::net6.0::DriverBusPrototype.Tests.AgentServiceTests.GetDocEncryptionKeyTest&lt;/TestId&gt;&#xD;
@@ -13,5 +15,6 @@
     &lt;TestId&gt;xUnit::5E5041A2-B85F-4F09-9158-6F219BDDF4BF::net6.0::DriverBusPrototype.Tests.CommandMarshalingTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::5E5041A2-B85F-4F09-9158-6F219BDDF4BF::net6.0::DriverBusPrototype.Tests.AgentServiceTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::5E5041A2-B85F-4F09-9158-6F219BDDF4BF::net6.0::DriverBusPrototype.Tests.ProtobufTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::5E5041A2-B85F-4F09-9158-6F219BDDF4BF::net6.0::DriverBusPrototype.Tests.CommandExecutorMockTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

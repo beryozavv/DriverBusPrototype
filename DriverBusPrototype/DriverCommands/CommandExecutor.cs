@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using DriverBusPrototype.DriverCommands.Models;
 
 namespace DriverBusPrototype.DriverCommands;
@@ -6,42 +5,12 @@ namespace DriverBusPrototype.DriverCommands;
 internal class CommandExecutor : ICommandExecutor
 {
     private readonly ICommunicationPort _communicationPort;
+    private readonly TaskCompletionDictionaryProvider _dictionaryProvider;
 
-    private readonly ConcurrentDictionary<string, TaskCompletionSource<CommandResult>> _taskCompletionSourcesDict =
-        new();
-
-    public CommandExecutor(ICommunicationPort communicationPort)
+    public CommandExecutor(ICommunicationPort communicationPort, TaskCompletionDictionaryProvider dictionaryProvider)
     {
         _communicationPort = communicationPort;
-
-        //todo для теста. вынести в фоновый сервис
-        _ = Task.Run(ReadResults);
-    }
-
-    private void ReadResults()
-    {
-        while (true)
-        {
-            try
-            {
-                var commandResult = _communicationPort.Read<CommandResult>();
-
-                if (_taskCompletionSourcesDict.TryGetValue(commandResult.Id, out var taskCompletionSource))
-                {
-                    if (taskCompletionSource.TrySetResult(commandResult))
-                    {
-                        Console.WriteLine($"For command {commandResult.Id} was set command result to task");
-                    }
-
-                    _taskCompletionSourcesDict.TryRemove(commandResult.Id, out _);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-        }
-        // ReSharper disable once FunctionNeverReturns
+        _dictionaryProvider = dictionaryProvider;
     }
 
     /// <summary>
@@ -55,7 +24,7 @@ internal class CommandExecutor : ICommandExecutor
         _communicationPort.Write(command);
 
         var taskCompletionSource = new TaskCompletionSource<CommandResult>(command.Id);
-        _taskCompletionSourcesDict.AddOrUpdate(command.Id, _ => taskCompletionSource,
+        _dictionaryProvider.TaskCompletionSourcesDict.AddOrUpdate(command.Id, _ => taskCompletionSource,
             (_, _) => taskCompletionSource);
 
         return await taskCompletionSource.Task.WaitAsync(Settings.CommandTimeout);

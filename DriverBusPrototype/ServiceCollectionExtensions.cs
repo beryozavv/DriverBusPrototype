@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddSingleton<INativePortMock, NativePortMock>();
         serviceCollection.AddSingleton<ICommunicationPort, CommunicationPortMock>();
         serviceCollection.AddSingleton<ICommandExecutor, CommandExecutor>();
+        serviceCollection.AddSingleton<TaskCompletionDictionaryProvider>();
         serviceCollection.AddScoped<IAgentService, AgentService>();
         
         return serviceCollection;

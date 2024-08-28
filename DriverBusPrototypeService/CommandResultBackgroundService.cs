@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+using DriverBusPrototype;
 using DriverBusPrototype.DriverCommands;
 using DriverBusPrototype.DriverCommands.Models;
 
@@ -8,33 +8,45 @@ public class CommandResultBackgroundService : BackgroundService
 {
     private readonly ILogger<CommandResultBackgroundService> _logger;
     private readonly ICommunicationPort _communicationPort;
-
-    public static ConcurrentDictionary<string, TaskCompletionSource<CommandResult>>
-        TaskCompletionSourcesDict { get; } = // todo куда вынести?
-        new();
+    private readonly TaskCompletionDictionaryProvider _dictionaryProvider;
 
     public CommandResultBackgroundService(ILogger<CommandResultBackgroundService> logger,
-        ICommunicationPort communicationPort)
+        ICommunicationPort communicationPort, TaskCompletionDictionaryProvider dictionaryProvider)
     {
         _logger = logger;
         _communicationPort = communicationPort;
+        _dictionaryProvider = dictionaryProvider;
+    }
+
+    public override Task StartAsync(CancellationToken cancellationToken)
+    {
+        Settings.NativeCommandMockExceptions = false; //todo
+        _communicationPort.Connect("test port todo from config"); // todo
+        return base.StartAsync(cancellationToken);
+    }
+
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        _communicationPort.Dispose(); // todo singleton тоже диспозится в DI
+        return base.StopAsync(cancellationToken);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Timed Hosted Service running.");
-
-        // When the timer should have no due-time, then do the work once now.
-        DoWork();
-
-        using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(10));
+        _logger.LogInformation("Timed Hosted Service running. Проверка кириллицы");
 
         try
         {
-            while (await timer.WaitForNextTickAsync(stoppingToken))
+            var readResultsTask = Task.Run(() =>
             {
-                DoWork();
-            }
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    ReadResults(); // todo зачем бесконечно читать результаты, если у нас всего пару команд?
+                }
+
+                stoppingToken.ThrowIfCancellationRequested();
+            }, stoppingToken);
+            await readResultsTask;
         }
         catch (OperationCanceledException)
         {
@@ -42,21 +54,20 @@ public class CommandResultBackgroundService : BackgroundService
         }
     }
 
-    // Could also be a async method, that can be awaited in ExecuteAsync above
-    private void DoWork()
+    private void ReadResults()
     {
         try
         {
             var commandResult = _communicationPort.Read<CommandResult>();
 
-            if (TaskCompletionSourcesDict.TryGetValue(commandResult.Id, out var taskCompletionSource))
+            if (_dictionaryProvider.TaskCompletionSourcesDict.TryGetValue(commandResult.Id, out var taskCompletionSource))
             {
                 if (taskCompletionSource.TrySetResult(commandResult))
                 {
-                    Console.WriteLine($"For command {commandResult.Id} was set command result to task");
+                    _logger.LogInformation("For command {id} was set command result to task",commandResult.Id);
                 }
 
-                TaskCompletionSourcesDict.TryRemove(commandResult.Id, out _);
+                _dictionaryProvider.TaskCompletionSourcesDict.TryRemove(commandResult.Id, out _);
             }
             else
             {
