@@ -47,7 +47,7 @@ internal class CommunicationPortMock : ICommunicationPort
         return _nativePortMock.Connect(portName);
     }
 
-    public T? Read<T>() where T : class
+    public T Read<T>() where T : class
     {
         return _retryPolicy.Execute(static context =>
             {
@@ -55,7 +55,6 @@ internal class CommunicationPortMock : ICommunicationPort
                 ((INativePortMock)context[NativePortKey]).Read(out var resultPtr, out var size);
 
                 var commandResult = ProtoConverter.ObjectFromProtoPtr<T>(resultPtr, size);
-                
                 Marshal.FreeHGlobal(resultPtr);
 
                 return commandResult;

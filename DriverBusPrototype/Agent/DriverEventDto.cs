@@ -16,23 +16,23 @@ public class DriverEventDto
 
     [DataMember] public Guid? ParentGuid { get; set; }
 
-    [DataMember] public string DocType { get; set; }
+    [DataMember] public string DocType { get; set; } = null!;
 
-    [DataMember] public string DocAuthor { get; set; }
+    [DataMember] public string DocAuthor { get; set; } = null!;
 
     [DataMember] public Guid? MarkerGuid { get; set; }
 
     [DataMember] public int? EncryptionPolicyId { get; set; }
 
-    [DataMember] public string FileName { get; set; }
+    [DataMember] public string FileName { get; set; } = null!;
 
-    [DataMember] public string FilePath { get; set; }
+    [DataMember] public string FilePath { get; set; } = null!;
 
     [DataMember] public string? ParentFileName { get; set; }
 
     [DataMember] public string? ParentFilePath { get; set; }
 
-    [DataMember] public string UserId { get; set; }
+    [DataMember] public string UserId { get; set; } = null!;
 
     [DataMember] public string? UserName { get; set; }
 }

@@ -46,9 +46,9 @@ internal class NativePortMock : INativePortMock
 
                 (dataPtr, dataSize) = ProtoConverter.ObjectToProtoPtr(commandResult);
                 
-                return;
-
                 _testOutputHelper.WriteLine("Driver send result by commandId = " + commandId);
+                
+                return;
             }
         }
     }

@@ -12,5 +12,6 @@
     &lt;TestId&gt;xUnit::5E5041A2-B85F-4F09-9158-6F219BDDF4BF::net6.0::DriverBusPrototype.Tests.CommandExecutorTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::5E5041A2-B85F-4F09-9158-6F219BDDF4BF::net6.0::DriverBusPrototype.Tests.CommandMarshalingTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::5E5041A2-B85F-4F09-9158-6F219BDDF4BF::net6.0::DriverBusPrototype.Tests.AgentServiceTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::5E5041A2-B85F-4F09-9158-6F219BDDF4BF::net6.0::DriverBusPrototype.Tests.ProtobufTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

@@ -13,7 +13,7 @@ public interface ICommunicationPort : IDisposable
     /// Считывание данных из текущего порта
     /// </summary>
     /// <returns>Результат выполнения команды</returns>
-    T? Read<T>() where T: class;
+    T Read<T>() where T: class;
 
     /// <summary>
     /// Запись данных в текущий порт

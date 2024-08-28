@@ -15,30 +15,33 @@ internal class CommandExecutor : ICommandExecutor
         _communicationPort = communicationPort;
 
         //todo для теста. вынести в фоновый сервис
-        var backgroundTask = Task.Run(() =>
+        _ = Task.Run(ReadResults);
+    }
+
+    private void ReadResults()
+    {
+        while (true)
         {
-            while (true)
+            try
             {
-                try
-                {
-                    var commandResult = _communicationPort.Read<CommandResult>();
+                var commandResult = _communicationPort.Read<CommandResult>();
 
-                    if (_taskCompletionSourcesDict.TryGetValue(commandResult.Id, out var taskCompletionSource))
+                if (_taskCompletionSourcesDict.TryGetValue(commandResult.Id, out var taskCompletionSource))
+                {
+                    if (taskCompletionSource.TrySetResult(commandResult))
                     {
-                        if (taskCompletionSource.TrySetResult(commandResult))
-                        {
-                            Console.WriteLine($"For command {commandResult.Id} was set command result to task");
-                        }
-
-                        _taskCompletionSourcesDict.TryRemove(commandResult.Id, out _);
+                        Console.WriteLine($"For command {commandResult.Id} was set command result to task");
                     }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
+
+                    _taskCompletionSourcesDict.TryRemove(commandResult.Id, out _);
                 }
             }
-        });
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+        // ReSharper disable once FunctionNeverReturns
     }
 
     /// <summary>

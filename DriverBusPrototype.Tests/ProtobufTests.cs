@@ -12,13 +12,13 @@ public class ProtobufTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
 
-    public ProtobufTests(ITestOutputHelper _testOutputHelper)
+    public ProtobufTests(ITestOutputHelper testOutputHelper)
     {
-        this._testOutputHelper = _testOutputHelper;
+        this._testOutputHelper = testOutputHelper;
     }
     
     [Fact]
-    public async Task ProtobufParamsCommandToUnmanagedTest()
+    public void ProtobufParamsCommandToUnmanagedTest()
     {
         var command = PrepareParamsCommand();
 
@@ -32,7 +32,7 @@ public class ProtobufTests
     }
     
     [Fact]
-    public async Task ProtobufPermissionCommandToUnmanagedTest()
+    public void ProtobufPermissionCommandToUnmanagedTest()
     {
         var command = PreparePermissionsCommand();
 
@@ -46,7 +46,7 @@ public class ProtobufTests
     }
     
     [Fact]
-    public async Task ProtobufCommandResultToUnmanagedTest()
+    public void ProtobufCommandResultToUnmanagedTest()
     {
         var command = GetTestResult("123123484asdgfasdfg456");
 

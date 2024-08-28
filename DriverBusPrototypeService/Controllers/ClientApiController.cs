@@ -30,7 +30,8 @@ public class ClientApiController : ControllerBase
             {
                 using (var fs = new FileStream(_testFilePath, FileMode.Open, FileAccess.Read))
                 {
-                    byte[] bytes = new byte[sizeof(long)];
+                    var bytes = new byte[sizeof(long)];
+                    // ReSharper disable once MustUseReturnValue
                     fs.Read(bytes, 0, bytes.Length);
                     long longValue = BitConverter.ToInt64(bytes, 0);
 
