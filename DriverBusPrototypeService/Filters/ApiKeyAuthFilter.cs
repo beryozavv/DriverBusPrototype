@@ -24,7 +24,7 @@ public class ApiKeyAuthFilter : IAuthorizationFilter
     {
         AuthContext authContext = new AuthContext();
 
-        string apiKey = context.HttpContext.Request.Headers[AuthContext.API_KEY_HEADER];
+        var apiKey = context.HttpContext.Request.Headers[AuthContext.API_KEY_HEADER];
 
         if (!authContext.IsValidApiKey(apiKey))
         {

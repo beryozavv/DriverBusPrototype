@@ -46,13 +46,13 @@ public class ClientApiController : ControllerBase
 
         var maxId = events.Max(e => e.DriverEventId);
 
-        _logger.LogInformation("Max eventId from events batch = {maxId}. Events count = {count}", maxId, events.Length);
+        _logger.LogInformation("Max eventId from events batch = {MaxId}. Events count = {Count}", maxId, events.Length);
 
         _logger.LogInformation("Save events to Db");
         foreach (var driverEventDto in events)
         {
             _logger.LogInformation(
-                "DriverId = {0}, EventType={1}, EventDate={2}, DocGuid={3}, FileName={4}, MarkerGuid = {5}",
+                "DriverId = {Id}, EventType={Type}, EventDate={Date}, DocGuid={Guid}, FileName={File}, MarkerGuid = {Marker}",
                 driverEventDto.DriverEventId, driverEventDto.EventType, driverEventDto.EventDateTimeUtc,
                 driverEventDto.DocGuid, driverEventDto.FileName, driverEventDto.MarkerGuid);
         }
@@ -72,7 +72,7 @@ public class ClientApiController : ControllerBase
     [Route("Encryption/{documentGuid}/encryptionKey")]
     public async Task<ActionResult<string>> GetEncryptionKey(Guid documentGuid)
     {
-        _logger.LogInformation("Get Encryption Key from server by documentGuid={0}",documentGuid);
+        _logger.LogInformation("Get Encryption Key from server by documentGuid={Guid}",documentGuid);
         await Task.Delay(TimeSpan.FromMilliseconds(200));
         
         byte[] guidBytes = documentGuid.ToByteArray();

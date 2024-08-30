@@ -1,4 +1,4 @@
-﻿namespace DriverBusPrototype.DriverCommands;
+﻿namespace DriverBusPrototype.DriverCommands.Services;
 
 public interface ICommunicationPort : IDisposable
 {
