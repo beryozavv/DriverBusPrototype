@@ -5,3 +5,8 @@ riderModule.iml
 /_ReSharper.Caches/
 .idea/
 /.idea
+.vs/
+/.vs
+debug/
+/debug
+/debug/

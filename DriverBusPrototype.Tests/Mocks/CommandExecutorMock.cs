@@ -1,6 +1,5 @@
-using DriverBusPrototype.DriverCommands;
-using DriverBusPrototype.DriverCommands.Models;
-using DriverBusPrototype.DriverCommands.Services;
+using DriverBusPrototype.Models;
+using DriverBusPrototype.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -8,27 +7,27 @@ namespace DriverBusPrototype.Tests.Mocks;
 
 internal class CommandExecutorMock : CommandExecutor
 {
-    private readonly ICommunicationPort _communicationPort;
+    private readonly IOutputCommunicationStream _stream;
     private readonly ILogger<CommandExecutorMock> _logger;
 
     private static readonly TaskCompletionDictionaryProvider DictionaryProvider = new();
 
-    public CommandExecutorMock(ICommunicationPort communicationPort, ILogger<CommandExecutorMock> logger,
-        IOptions<DriverBusSettings> settings) : base(communicationPort, DictionaryProvider, logger, settings)
+    public CommandExecutorMock(IOutputCommunicationStream stream, ILogger<CommandExecutorMock> logger,
+        IOptions<DriverBusSettings> settings) : base(stream, DictionaryProvider, logger, settings)
     {
-        _communicationPort = communicationPort;
+        _stream = stream;
         _logger = logger;
         
         _ = Task.Run(ReadResults);
     }
 
-    private void ReadResults()
+    private async Task ReadResults()
     {
         while (true)
         {
             try
             {
-                var commandResult = _communicationPort.Read<CommandResult>();
+                var commandResult = await _stream.ReadAsync<CommandResult>();
 
                 if (DictionaryProvider.TaskCompletionSourcesDict.TryGetValue(commandResult.Id,
                         out var taskCompletionSource))

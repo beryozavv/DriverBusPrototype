@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
-using DriverBusPrototype.DriverCommands;
-using DriverBusPrototypeService.Filters;
+using DriverBusPrototype;
 using Microsoft.AspNetCore.Http.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +9,6 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDriverBusServices(builder.Configuration);
-builder.Services.AddScoped<ApiKeyAuthFilter>();
 builder.Services.Configure<JsonOptions>(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
