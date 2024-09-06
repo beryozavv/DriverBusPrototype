@@ -1,18 +1,65 @@
-# Для повторной генерации контрактов Command и CommandResult
-### Устанавливаем утилиту protogen 
-```shell
-dotnet tool install --global protobuf-net.Protogen --version 3.2.42
+# Контракты команд
+## Команда с вложенным json
+```json
+{
+  "Id": "4adb5e42-9983-465a-947b-dedcf6295a0d",
+  "Type": "GetEncryptionKey",
+  "IsEncrypted": false,
+  "Parameters": "json"
+}
 ```
-### Генерируем контракт Command
-```shell
-protogen --proto_path=DriverBusPrototype\DriverCommands\Models --csharp_out=DriverBusPrototype\DriverCommands\Models Command.proto
-```
-### Генерируем контракт CommandResult
-```shell
-protogen --proto_path=DriverBusPrototype\DriverCommands\Models --csharp_out=DriverBusPrototype\DriverCommands\Models CommandResult.proto
+## Ответ на команду
+```json
+{
+  "Id": "4adb5e42-9983-465a-947b-dedcf6295a0d",
+  "CommandType": "GetEncryptionKey",
+  "IsSuccess": true,
+  "ErrorCode": 0,
+  "ErrorMessage": "test",
+  "Result": "json"
+}
 ```
 
-# Контракты команд
+# Контракты вложенных команд
+### Json для запроса на отправку пачки событий
+```json
+[
+  {
+    "DriverEventId": 120,
+    "EventType": "OpenDocEvent",
+    "EventDateTimeUtc": "2024-09-06T14:46:03.8337162Z",
+    "DocGuid": "3ab40d6f-67a3-4318-b94b-b78f2a50b370",
+    "ParentGuid": null,
+    "DocType": "??",
+    "DocAuthor": "test",
+    "MarkerGuid": "abe71359-9cb5-46d3-a6ad-036a6cabd4c8",
+    "EncryptionPolicyId": null,
+    "FileName": "test.docx",
+    "FilePath": "c:\\test.docx",
+    "ParentFileName": null,
+    "ParentFilePath": null,
+    "UserId": "123testSid789",
+    "UserName": null
+  },
+  {
+    "DriverEventId": 125,
+    "EventType": "SaveDocEvent",
+    "EventDateTimeUtc": "2024-09-06T14:46:03.8338869Z",
+    "DocGuid": "edc93b8a-2994-4088-8f44-813d7782b2f1",
+    "ParentGuid": null,
+    "DocType": "??",
+    "DocAuthor": "test",
+    "MarkerGuid": "5633d268-a1c0-41f8-98ac-6aefd940c0fc",
+    "EncryptionPolicyId": null,
+    "FileName": "test2.docx",
+    "FilePath": "c:\\test2.docx",
+    "ParentFileName": null,
+    "ParentFilePath": null,
+    "UserId": "456123testSid789",
+    "UserName": null
+  }
+]
+```
 ### Json для команды SetParams
 ```json
 {

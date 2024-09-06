@@ -1,6 +1,6 @@
-using DriverBusPrototype.DriverCommands.Helpers;
-using DriverBusPrototype.DriverCommands.Models;
-using DriverBusPrototype.DriverCommands.Services;
+using DriverBusPrototype;
+using DriverBusPrototype.Models;
+using DriverBusPrototype.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

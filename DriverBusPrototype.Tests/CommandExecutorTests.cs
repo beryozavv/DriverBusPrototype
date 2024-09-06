@@ -1,6 +1,4 @@
-﻿using DriverBusPrototype.DriverCommands;
-using DriverBusPrototype.DriverCommands.Helpers;
-using DriverBusPrototype.DriverCommands.Services;
+﻿using DriverBusPrototype.Services;
 using DriverBusPrototype.Tests.Mocks;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -12,7 +10,7 @@ namespace DriverBusPrototype.Tests;
 public class CommandExecutorTests : IDisposable
 {
     private readonly ITestOutputHelper _testOutputHelper;
-    private readonly ICommunicationPort _communicationPort;
+    private readonly IOutputCommunicationStream _communicationStream;
     private readonly Mock<IOptions<DriverBusSettings>> _settingsMock;
 
     public CommandExecutorTests(ITestOutputHelper testOutputHelper)
@@ -21,22 +19,21 @@ public class CommandExecutorTests : IDisposable
         _settingsMock.Setup(o => o.Value).Returns(new DriverBusSettings
         {
             CommandTimeout = Settings.CommandTimeout, ReadTimeout = Settings.ReadTimout,
-            NativePortMockExceptions = Settings.NativePortMockExceptions
+            NativePortMockExceptions = Settings.NativePortMockExceptions,
+            InputPipeName = "pipe1", OutputPipeName = "pipe2"
         });
 
         _testOutputHelper = testOutputHelper;
-        INativePort nativePort =
-            new NativePortMock(new LoggerMock<NativePortMock>(_testOutputHelper), _settingsMock.Object);
-        _communicationPort =
-            new CommunicationPort(new LoggerMock<CommunicationPort>(_testOutputHelper), nativePort);
-        _communicationPort.Connect("TestPortName");
+        _communicationStream =
+            new OutputBaseNamedPipeStream(new LoggerMock<OutputBaseNamedPipeStream>(_testOutputHelper), _settingsMock.Object);
+        _communicationStream.ConnectAsync().GetAwaiter().GetResult();
     }
 
     [Fact]
     public async Task SendParamsCommandTest()
     {
         ICommandExecutor commandExecutor =
-            new CommandExecutorMock(_communicationPort, new LoggerMock<CommandExecutorMock>(_testOutputHelper),
+            new CommandExecutorMock(_communicationStream, new LoggerMock<CommandExecutorMock>(_testOutputHelper),
                 _settingsMock.Object);
 
         var commandParams = TestCommandsHelper.PrepareParamsCommand();
@@ -74,17 +71,17 @@ public class CommandExecutorTests : IDisposable
         localSettingsMock.Setup(o => o.Value).Returns(new DriverBusSettings
         {
             CommandTimeout = TimeSpan.FromSeconds(1), ReadTimeout = TimeSpan.FromSeconds(5),
-            NativePortMockExceptions = false
+            NativePortMockExceptions = false,
+            InputPipeName = "pipe1", OutputPipeName = "pipe2"
         });
-        
-        INativePort nativePort =
-            new NativePortMock(new LoggerMock<NativePortMock>(_testOutputHelper), localSettingsMock.Object);
-        var communicationPort =
-            new CommunicationPort(new LoggerMock<CommunicationPort>(_testOutputHelper), nativePort);
-        communicationPort.Connect("TestPortName");
+
+        IOutputCommunicationStream communicationStream =
+            new OutputBaseNamedPipeStream(new LoggerMock<OutputBaseNamedPipeStream>(_testOutputHelper), localSettingsMock.Object);
+
+        await communicationStream.ConnectAsync();
 
         ICommandExecutor commandExecutor =
-            new CommandExecutorMock(communicationPort, new LoggerMock<CommandExecutorMock>(_testOutputHelper),
+            new CommandExecutorMock(communicationStream, new LoggerMock<CommandExecutorMock>(_testOutputHelper),
                 localSettingsMock.Object);
 
         var command = TestCommandsHelper.PrepareParamsCommand();
@@ -99,13 +96,13 @@ public class CommandExecutorTests : IDisposable
     public async Task SendParamsCommandCancellationTest()
     {
         ICommandExecutor commandExecutor =
-            new CommandExecutorMock(_communicationPort, new LoggerMock<CommandExecutorMock>(_testOutputHelper),
+            new CommandExecutorMock(_communicationStream, new LoggerMock<CommandExecutorMock>(_testOutputHelper),
                 _settingsMock.Object);
 
         var command = TestCommandsHelper.PrepareParamsCommand();
 
         var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(20));
-
+        cts.Cancel();
         var commandTimeoutException = await Assert.ThrowsAsync<TaskCanceledException>(async () =>
             await commandExecutor.ExecuteCommandAsync(command, cts.Token));
 
@@ -114,6 +111,6 @@ public class CommandExecutorTests : IDisposable
 
     public void Dispose()
     {
-        _communicationPort.Dispose();
+        _communicationStream.Dispose();
     }
 }
