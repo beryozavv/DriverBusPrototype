@@ -1,4 +1,4 @@
-﻿namespace DriverBusPrototype.Services;
+﻿namespace DriverBusPrototype.Streams;
 
 /// <summary>
 /// Базовый интерфейс для коммуникации с драйвером

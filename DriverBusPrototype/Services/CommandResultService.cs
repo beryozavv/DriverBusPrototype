@@ -1,4 +1,5 @@
 using DriverBusPrototype.Models;
+using DriverBusPrototype.Streams;
 using Microsoft.Extensions.Logging;
 
 namespace DriverBusPrototype.Services;
@@ -47,7 +48,7 @@ internal class CommandResultService : ICommandResultService
             }
             else
             {
-                _logger.LogError("ReadAsync command result not found in TaskCompletionSourcesDict. Command id = {Id}",
+                _logger.LogError("Command result not found in TaskCompletionSourcesDict. Command id = {Id}",
                     commandResult.Id);
             }
         }

@@ -1,4 +1,5 @@
 ﻿using DriverBusPrototype.Services;
+using DriverBusPrototype.Streams;
 using DriverBusPrototype.Tests.Mocks;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -25,7 +26,7 @@ public class CommandExecutorTests : IDisposable
 
         _testOutputHelper = testOutputHelper;
         _communicationStream =
-            new OutputBaseNamedPipeStream(new LoggerMock<OutputBaseNamedPipeStream>(_testOutputHelper), _settingsMock.Object);
+            new OutputCommunicationStream(new LoggerMock<OutputCommunicationStream>(_testOutputHelper), _settingsMock.Object);
         _communicationStream.ConnectAsync().GetAwaiter().GetResult();
     }
 
@@ -76,7 +77,7 @@ public class CommandExecutorTests : IDisposable
         });
 
         IOutputCommunicationStream communicationStream =
-            new OutputBaseNamedPipeStream(new LoggerMock<OutputBaseNamedPipeStream>(_testOutputHelper), localSettingsMock.Object);
+            new OutputCommunicationStream(new LoggerMock<OutputCommunicationStream>(_testOutputHelper), localSettingsMock.Object);
 
         await communicationStream.ConnectAsync();
 

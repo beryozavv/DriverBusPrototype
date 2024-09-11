@@ -1,6 +1,7 @@
 using System.Reflection;
 using DriverBusPrototype.Models;
 using DriverBusPrototype.Services;
+using DriverBusPrototype.Streams;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,8 +14,8 @@ public static class ServiceCollectionExtensions
     {
         services.Configure<DriverBusSettings>(configuration.GetSection(nameof(DriverBusSettings)));
 
-        services.AddSingleton<IInputCommunicationStream, InputBaseNamedPipeStream>();
-        services.AddSingleton<IOutputCommunicationStream, OutputBaseNamedPipeStream>();
+        services.AddSingleton<IInputCommunicationStream, InputCommunicationStream>();
+        services.AddSingleton<IOutputCommunicationStream, OutputCommunicationStream>();
         services.AddSingleton<ICommandExecutor, CommandExecutor>();
         services.AddSingleton<TaskCompletionDictionaryProvider>();
         services.AddSingleton<ICommandResultService, CommandResultService>();
