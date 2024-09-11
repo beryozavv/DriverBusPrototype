@@ -1,5 +1,6 @@
 using DriverBusPrototype.Handlers;
 using DriverBusPrototype.Models;
+using DriverBusPrototype.Streams;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

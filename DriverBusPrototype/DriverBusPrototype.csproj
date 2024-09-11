@@ -21,20 +21,20 @@
       <Compile Update="Services\CommandResultService.cs">
         <DependentUpon>ICommandResultService.cs</DependentUpon>
       </Compile>
-      <Compile Update="Services\BaseNamedPipeStream.cs">
-        <DependentUpon>ICommunicationStream.cs</DependentUpon>
-      </Compile>
       <Compile Update="Services\CommandExecutor.cs">
         <DependentUpon>ICommandExecutor.cs</DependentUpon>
       </Compile>
-      <Compile Update="Services\InputBaseNamedPipeStream.cs">
-        <DependentUpon>IInputCommunicationStream.cs</DependentUpon>
-      </Compile>
-      <Compile Update="Services\OutputBaseNamedPipeStream.cs">
-        <DependentUpon>IOutputCommunicationStream.cs</DependentUpon>
-      </Compile>
       <Compile Update="Services\RequestExecutor.cs">
         <DependentUpon>IRequestExecutor.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Streams\BaseCommunicationStream.cs">
+        <DependentUpon>ICommunicationStream.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Streams\InputCommunicationStream.cs">
+        <DependentUpon>IInputCommunicationStream.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Streams\OutputCommunicationStream.cs">
+        <DependentUpon>IOutputCommunicationStream.cs</DependentUpon>
       </Compile>
     </ItemGroup>    
 

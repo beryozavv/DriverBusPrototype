@@ -1,26 +1,27 @@
-﻿using System.IO.Pipes;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
 
-namespace DriverBusPrototype.Services;
+namespace DriverBusPrototype.Streams;
 
-internal abstract class BaseNamedPipeStream : ICommunicationStream
+internal abstract class BaseCommunicationStream : ICommunicationStream
 {
     private readonly string _pipeName;
     private readonly AsyncRetryPolicy _retryPolicy;
 
-    private NamedPipeServerStream _pipeServerStream;
+    private ThreadSafetyNamedPipeStream _namedPipeStream;
+    
+    private readonly SemaphoreSlim _reconnectSemaphore = new(1, 1);
 
     private const string CommandKey = "Command";
     private const string MethodKey = "Method";
 
-    public BaseNamedPipeStream(ILogger<BaseNamedPipeStream> logger, string pipeName)
+    public BaseCommunicationStream(ILogger<BaseCommunicationStream> logger, string pipeName)
     {
         _pipeName = pipeName;
 
-        _pipeServerStream = GetNewStream(_pipeName);
+        _namedPipeStream = new ThreadSafetyNamedPipeStream(_pipeName);
 
         _retryPolicy = Policy
             .Handle<CommunicationStreamException>()
@@ -34,45 +35,30 @@ internal abstract class BaseNamedPipeStream : ICommunicationStream
                         DateTime.UtcNow, context[MethodKey], retryCount, exception.Message, timeSpan);
                     try
                     {
-                        var readPipeConnect = Task.FromResult(_pipeServerStream);
-
-                        //lock (Lock) // todo синхронизация одновременных реконнектов от разных команд
-
-                        if (!_pipeServerStream.IsConnected)
+                        if (!_namedPipeStream.IsConnected)
                         {
-                            readPipeConnect = ReconnectAsync(_pipeServerStream);
+                            await ReconnectAsync(); //todo cancellation
                         }
-                        _pipeServerStream = await readPipeConnect;
                     }
                     catch (Exception e)
                     {
-                        logger.LogError(e, "reconnect in polly");
+                        logger.LogError(e, "error reconnect in polly");
                     }
                 });
     }
 
     public async Task ConnectAsync(CancellationToken cancellationToken = default)
     {
-        await _pipeServerStream.WaitForConnectionAsync(cancellationToken);
+        await _namedPipeStream.WaitForConnectionAsync(cancellationToken);
     }
 
     public async Task<T> ReadAsync<T>() where T : class
     {
         return await _retryPolicy.ExecuteAsync(async _ => // todo избавиться от замыканий?
             {
-                using (var reader = new StreamReader(_pipeServerStream, leaveOpen: true))
+                try
                 {
-                    var readLine = await reader.ReadLineAsync();
-
-                    if (string.IsNullOrEmpty(readLine))
-                    {
-                        readLine = await reader.ReadLineAsync(); //todo после второго чтения стает notConnected
-                        if (string.IsNullOrEmpty(readLine))
-                        {
-                            throw new CommunicationStreamException("read null");
-                        }
-                    }
-
+                    var readLine = await _namedPipeStream.ReadLineAsync();
                     var commandResult = JsonSerializer.Deserialize<T>(readLine, BusJsonOptions.GetOptions());
 
                     if (commandResult == null)
@@ -81,6 +67,10 @@ internal abstract class BaseNamedPipeStream : ICommunicationStream
                     }
 
                     return commandResult;
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    throw new CommunicationStreamException("reader stream was disposed", ex);
                 }
             },
             new Dictionary<string, object>
@@ -96,15 +86,12 @@ internal abstract class BaseNamedPipeStream : ICommunicationStream
                 var commandJson = JsonSerializer.Serialize(command, BusJsonOptions.GetOptions());
                 try
                 {
-                    using (var writer = new StreamWriter(_pipeServerStream, leaveOpen: true))
-                    {
-                        writer.AutoFlush = true;
-                        await writer.WriteLineAsync(commandJson);
-                    }
+                    await _namedPipeStream.WriteLineAsync(commandJson);
                 }
                 catch (Exception ex) when (ex is IOException || ex is ObjectDisposedException)
                 {
-                    throw new CommunicationStreamException("write IO exception", ex);
+                    var message = ex is IOException ? "write IO exception" : "writer stream was disposed";
+                    throw new CommunicationStreamException(message, ex);
                 }
             },
             new Dictionary<string, object>
@@ -115,23 +102,32 @@ internal abstract class BaseNamedPipeStream : ICommunicationStream
 
     public void Dispose()
     {
-        _pipeServerStream.Dispose();
+        _namedPipeStream.Dispose();
     }
 
-    private async Task<NamedPipeServerStream> ReconnectAsync(NamedPipeServerStream stream)
+    private async Task ReconnectAsync(CancellationToken cancellationToken = default)
     {
-        await stream.DisposeAsync();
-
-        var newStream = GetNewStream(_pipeName);
-
-        await newStream.WaitForConnectionAsync(); //todo cancellation
-
-        return newStream;
+        await _reconnectSemaphore.WaitAsync(cancellationToken);
+        try
+        {
+            if (!_namedPipeStream.IsConnected)
+            {
+                await _namedPipeStream.DisposeAsync();
+                
+                ReplaceStreamInstance();
+                
+                await _namedPipeStream.WaitForConnectionAsync(cancellationToken);
+            }
+        }
+        finally
+        {
+            _reconnectSemaphore.Release();
+        }
     }
 
-    private NamedPipeServerStream GetNewStream(string pipeName)
+    private void ReplaceStreamInstance()
     {
-        return new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1,
-            PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+        var newStream = new ThreadSafetyNamedPipeStream(_pipeName);
+        Interlocked.Exchange(ref _namedPipeStream, newStream);
     }
 }

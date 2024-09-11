@@ -1,4 +1,4 @@
-namespace DriverBusPrototype.Services;
+namespace DriverBusPrototype.Streams;
 
 /// <summary>
 /// Для приема запросов от драйвера

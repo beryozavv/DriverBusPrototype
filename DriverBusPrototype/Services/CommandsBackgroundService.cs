@@ -28,13 +28,13 @@ public class CommandsBackgroundService : BackgroundService
 
         try
         {
-            var readResultsTask = Task.Run(() =>
-                _commandResultService.ReadCommandsResults(stoppingToken), stoppingToken);
+            var readResultsTask = Task.Factory.StartNew(() => _commandResultService.ReadCommandsResults(stoppingToken),
+                stoppingToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
 
-            var readCommandsTask = Task.Run(() =>
-                    _requestExecutor.ExecuteRequests(stoppingToken), stoppingToken);
+            var readRequestsTask = Task.Factory.StartNew(() => _requestExecutor.ExecuteRequests(stoppingToken),
+                stoppingToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
 
-            await Task.WhenAll(readResultsTask, readCommandsTask);
+            await Task.WhenAll(readResultsTask, readRequestsTask);
         }
         catch (OperationCanceledException)
         {

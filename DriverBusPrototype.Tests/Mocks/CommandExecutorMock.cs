@@ -1,5 +1,6 @@
 using DriverBusPrototype.Models;
 using DriverBusPrototype.Services;
+using DriverBusPrototype.Streams;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -18,7 +19,8 @@ internal class CommandExecutorMock : CommandExecutor
         _stream = stream;
         _logger = logger;
         
-        _ = Task.Run(ReadResults);
+        _ = Task.Factory.StartNew(ReadResults,
+            default, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
     }
 
     private async Task ReadResults()

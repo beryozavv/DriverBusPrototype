@@ -1,4 +1,5 @@
 using DriverBusPrototype.Models;
+using DriverBusPrototype.Streams;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -39,16 +40,14 @@ internal class CommandExecutor : ICommandExecutor
                     (_, _) => taskCompletionSource);
             
                 await _communicationStream.WriteAsync(command);
-
-                return await taskCompletionSource.Task.WaitAsync(_settings.CommandTimeout, cancellationToken);
             }
             catch (Exception e)
             {
                 _dictionaryProvider.TaskCompletionSourcesDict.TryRemove(command.Id, out var removedTaskCompletionSource);
                 removedTaskCompletionSource?.TrySetException(e);
-                throw;
             }
             
+            return await taskCompletionSource.Task.WaitAsync(_settings.CommandTimeout, cancellationToken);
         }
     }
 }
