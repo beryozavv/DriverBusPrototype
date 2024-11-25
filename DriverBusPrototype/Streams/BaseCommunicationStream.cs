@@ -10,7 +10,7 @@ internal abstract class BaseCommunicationStream : ICommunicationStream
     private readonly string _pipeName;
     private readonly AsyncRetryPolicy _retryPolicy;
 
-    private ThreadSafetyNamedPipeStream _namedPipeStream;
+    private ThreadSafetyOutGrpcStream _outputGrpcStream;
     
     private readonly SemaphoreSlim _reconnectSemaphore = new(1, 1);
 
@@ -21,7 +21,7 @@ internal abstract class BaseCommunicationStream : ICommunicationStream
     {
         _pipeName = pipeName;
 
-        _namedPipeStream = new ThreadSafetyNamedPipeStream(_pipeName);
+        _outputGrpcStream = new ThreadSafetyOutGrpcStream(_pipeName);
 
         _retryPolicy = Policy
             .Handle<CommunicationStreamException>()
@@ -35,7 +35,7 @@ internal abstract class BaseCommunicationStream : ICommunicationStream
                         DateTime.UtcNow, context[MethodKey], retryCount, exception.Message, timeSpan);
                     try
                     {
-                        if (!_namedPipeStream.IsConnected)
+                        if (!_outputGrpcStream.IsConnected)
                         {
                             await ReconnectAsync(); //todo cancellation
                         }
@@ -49,7 +49,7 @@ internal abstract class BaseCommunicationStream : ICommunicationStream
 
     public async Task ConnectAsync(CancellationToken cancellationToken = default)
     {
-        await _namedPipeStream.WaitForConnectionAsync(cancellationToken);
+        await _outputGrpcStream.WaitForConnectionAsync(cancellationToken);
     }
 
     public async Task<T> ReadAsync<T>() where T : class
@@ -58,7 +58,7 @@ internal abstract class BaseCommunicationStream : ICommunicationStream
             {
                 try
                 {
-                    var readLine = await _namedPipeStream.ReadLineAsync();
+                    var readLine = await _outputGrpcStream.ReadLineAsync();
                     var commandResult = JsonSerializer.Deserialize<T>(readLine, BusJsonOptions.GetOptions());
 
                     if (commandResult == null)
@@ -86,7 +86,7 @@ internal abstract class BaseCommunicationStream : ICommunicationStream
                 var commandJson = JsonSerializer.Serialize(command, BusJsonOptions.GetOptions());
                 try
                 {
-                    await _namedPipeStream.WriteLineAsync(commandJson);
+                    await _outputGrpcStream.WriteLineAsync(commandJson);
                 }
                 catch (Exception ex) when (ex is IOException || ex is ObjectDisposedException)
                 {
@@ -102,7 +102,7 @@ internal abstract class BaseCommunicationStream : ICommunicationStream
 
     public void Dispose()
     {
-        _namedPipeStream.Dispose();
+        _outputGrpcStream.Dispose();
     }
 
     private async Task ReconnectAsync(CancellationToken cancellationToken = default)
@@ -110,13 +110,13 @@ internal abstract class BaseCommunicationStream : ICommunicationStream
         await _reconnectSemaphore.WaitAsync(cancellationToken);
         try
         {
-            if (!_namedPipeStream.IsConnected)
+            if (!_outputGrpcStream.IsConnected)
             {
-                await _namedPipeStream.DisposeAsync();
+                await _outputGrpcStream.DisposeAsync();
                 
                 ReplaceStreamInstance();
                 
-                await _namedPipeStream.WaitForConnectionAsync(cancellationToken);
+                await _outputGrpcStream.WaitForConnectionAsync(cancellationToken);
             }
         }
         finally
@@ -127,7 +127,7 @@ internal abstract class BaseCommunicationStream : ICommunicationStream
 
     private void ReplaceStreamInstance()
     {
-        var newStream = new ThreadSafetyNamedPipeStream(_pipeName);
-        Interlocked.Exchange(ref _namedPipeStream, newStream);
+        var newStream = new ThreadSafetyOutGrpcStream(_pipeName);
+        Interlocked.Exchange(ref _outputGrpcStream, newStream);
     }
 }

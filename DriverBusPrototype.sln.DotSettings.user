@@ -8,9 +8,11 @@
   &lt;Assembly Path="C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\6.0.33\Microsoft.Extensions.Configuration.dll" /&gt;&#xD;
   &lt;Assembly Path="C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\6.0.33\Microsoft.Extensions.Options.ConfigurationExtensions.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
-	<s:String x:Key="/Default/Environment/Hierarchy/Build/BuildTool/CustomBuildToolPath/@EntryValue">C:\Program Files\JetBrains\JetBrains Rider 2023.3.5\tools\MSBuild\Current\Bin\amd64\MSBuild.exe</s:String>
-	<s:Int64 x:Key="/Default/Environment/Hierarchy/Build/BuildTool/MsbuildVersion/@EntryValue">1114112</s:Int64>
+	<s:String x:Key="/Default/Environment/Hierarchy/Build/BuildTool/CustomBuildToolPath/@EntryValue">C:\Program Files\dotnet\sdk\9.0.100-preview.6.24328.19\MSBuild.dll</s:String>
+	<s:Int64 x:Key="/Default/Environment/Hierarchy/Build/BuildTool/MsbuildVersion/@EntryValue">4294967294</s:Int64>
+	<s:Boolean x:Key="/Default/Environment/Hierarchy/Build/BuildTool/RecentBuildToolPaths/=C_003A_005CProgram_0020Files_005Cdotnet_005Csdk_005C9_002E0_002E100_002Dpreview_002E6_002E24328_002E19_005CMSBuild_002Edll/@EntryIndexedValue">True</s:Boolean>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=b647b56e_002D5704_002D43ac_002Da2b2_002D41e8c36a36f6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="RoundTimeLoopTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="D:\Projects\beryozavv\PrototypesAndTests\DriverBusPrototype\DriverBusPrototype.Tests" Presentation="&amp;lt;DriverBusPrototype.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
+	
 	</wpf:ResourceDictionary>
